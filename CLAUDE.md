@@ -10,6 +10,11 @@ use `mod` directives pointing at shim files (`*.mod.just`) which set the
 working directory and import the actual recipe files. Both shim and recipe
 files are fetched via a `fetch` recipe.
 
+## Development Reference
+
+- @docs/development.md - Prerequisites, setup, conventions, commits
+- @docs/contributing.md - PR workflow and contribution guidelines
+
 ## Repository Structure
 
 - `go.just` - Go build, test, lint, and formatting recipes
@@ -75,6 +80,11 @@ Example:
 
     🤖 Generated with [Claude Code](https://claude.ai/code)
     Co-Authored-By: Claude <noreply@anthropic.com>
+
+### Task Tracking
+
+Implementation planning and execution uses the superpowers plugin workflows
+(`writing-plans` and `executing-plans`). Plans live in `docs/plans/`.
 
 ### Parity with Taskfiles
 
