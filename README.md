@@ -7,7 +7,7 @@
 
 A justfile used by osapi-io projects.
 
-## Usage
+## 📦 Usage
 
 Shared recipes are consumed as
 [just modules](https://just.systems/man/en/modules.html). Each module has a
@@ -71,7 +71,7 @@ project's `test` recipe where needed:
 test: go::test go::docs-check bats::test
 ```
 
-## Available Recipes
+## ✨ Available Recipes
 
 ### go.just
 
@@ -127,6 +127,12 @@ test: go::test go::docs-check bats::test
 - `DOCS_HOST` - dev server host (default: `localhost`)
 - `DOCS_PORT` - dev server port (default: `3001`)
 
-## License
+## 🤝 Contributing
+
+See the [Development](docs/development.md) guide for prerequisites, setup,
+and conventions. See the [Contributing](docs/contributing.md) guide before
+submitting a PR.
+
+## 📄 License
 
 The [MIT](LICENSE) License.
