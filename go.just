@@ -65,8 +65,8 @@ mod:
     #!/usr/bin/env bash
     go mod download
     go mod tidy
-    if [ -d examples/ ] && [ "$(ls examples/)" ]; then
-        for dir in examples/*/; do
+    if [ -d examples/ ]; then
+        find examples/ -name go.mod -exec dirname {} \; | while read dir; do
             (cd "${dir}" && go mod tidy)
         done
     fi
