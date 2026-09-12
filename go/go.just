@@ -56,11 +56,15 @@ _go-cov-deps:
 [group('setup')]
 go-deps: _go-fmt-deps _go-vet-deps _go-cov-deps
 
+# Download modules without changing anything
+[group('setup')]
+_go-mod-download:
+    go mod download
+
 # Module maintenance (download + tidy)
 [group('setup')]
-go-mod:
+go-mod: _go-mod-download
     #!/usr/bin/env bash
-    go mod download
     go mod tidy
     if [ -d examples/ ]; then
         find examples/ -name go.mod -exec dirname {} \; | while read dir; do
@@ -178,9 +182,9 @@ go-unit-cov-gaps: go-unit-cov
 go-unit-cov-map: go-unit-cov
     go tool cover -html={{ go_coverage_dir }}/cover.out
 
-# Test all (mod, fmt check, vet, coverage)
+# Test all (mod check, fmt check, vet, coverage)
 [group('test')]
-go-test: go-mod go-fmt-check go-vet go-unit-cov-check
+go-test: _go-mod-download go-mod-check go-fmt-check go-vet go-unit-cov-check
 
 # --- Fmt ---
 
