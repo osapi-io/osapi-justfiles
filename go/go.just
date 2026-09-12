@@ -68,6 +68,53 @@ go-mod:
         done
     fi
 
+# Fail when a committed module is untidy
+[group('setup')]
+go-mod-check:
+    #!/usr/bin/env bash
+    # go-mod runs inside a throwaway CI checkout, so tidying there fixes
+    # nothing and the committed drift survives every green build. This
+    # reports it instead of repairing it.
+    set -euo pipefail
+    status=0
+    if ! go mod tidy -diff; then
+        echo "untidy: ." >&2
+        status=1
+    fi
+    if [ -d examples/ ]; then
+        while read -r dir; do
+            if ! (cd "${dir}" && go mod tidy -diff); then
+                echo "untidy: ${dir}" >&2
+                status=1
+            fi
+        done < <(find examples/ -name go.mod -exec dirname {} \;)
+    fi
+    if [ "${status}" -ne 0 ]; then
+        echo "run 'just go-mod' and commit the result" >&2
+    fi
+    exit "${status}"
+
+# Update dependencies of the modules under examples/
+[group('setup')]
+go-mod-bump:
+    #!/usr/bin/env bash
+    # Dependabot watches the directory its config names, which is the root.
+    # Modules under examples/ have their own go.mod and nothing moves them,
+    # so this does. go mod tidy alone only reconciles what a module already
+    # requires; go get -u is what advances a version.
+    #
+    # The root is left to Dependabot on purpose. Bumping it here would also
+    # drag along the tool versions `go get -tool` manages.
+    set -euo pipefail
+    if [ ! -d examples/ ]; then
+        echo "no examples/ directory, nothing to bump"
+        exit 0
+    fi
+    find examples/ -name go.mod -exec dirname {} \; | while read -r dir; do
+        echo "bumping ${dir}"
+        (cd "${dir}" && go get -u ./... && go mod tidy)
+    done
+
 # --- Lint ---
 
 # Report likely mistakes in packages
