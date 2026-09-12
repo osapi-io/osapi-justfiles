@@ -32,6 +32,7 @@ by their prefixed names:
 $ just fetch          # Download shared justfiles
 $ just go-deps        # Install all Go tool dependencies
 $ just go-test        # Run all Go checks
+$ just go-mod-bump    # Update dependencies under examples/
 $ just go-fmt         # Auto-format code
 $ just md-fmt-check   # Check markdown formatting
 ```
@@ -82,6 +83,12 @@ test:
     just go-test
     just go-docs-check
 ```
+
+### Nested modules
+
+A module under `examples/` has its own `go.mod` that Dependabot does not watch.
+`go-mod-bump` updates them and `go-mod-check`, which `go-test` depends on, fails
+when a committed one is untidy. [go/README.md](go/README.md) has the detail.
 
 ## Documentation
 

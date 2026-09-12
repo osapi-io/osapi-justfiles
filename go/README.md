@@ -24,7 +24,7 @@ Then:
 ```bash
 just fetch                 # Download the shared recipe file
 just go-deps               # Install tool dependencies
-just go-test               # mod, fmt-check, vet, coverage gate
+just go-test               # mod-check, fmt-check, vet, coverage gate
 just go-unit               # Unit tests only
 just go-unit-cov           # Generate a coverage profile
 just go-unit-cov-check     # Fail below the coverage target
@@ -33,7 +33,27 @@ just go-fmt                # Reformat with gofumpt and golines
 just go-fmt-check          # Check formatting
 just go-vet                # Run golangci-lint
 just go-generate           # Run go generate
+just go-mod                # Download, then tidy the root and examples/
+just go-mod-check          # Fail when a committed module is untidy
+just go-mod-bump           # Update dependencies of the modules under examples/
 ```
+
+### Nested modules
+
+A module under `examples/` has its own `go.mod`, and Dependabot watches only the
+directory its config names. `go-mod-bump` updates them, with `go get -u`
+followed by `go mod tidy`: tidy alone reconciles what a module already requires
+and never advances a version. The root module is left to Dependabot, since
+bumping it here would also move the tool versions `go get -tool` manages.
+
+`go-mod-check` reports untidy modules rather than repairing them, and `go-test`
+depends on it. `go-mod` performs the fix, and the check's failure message names
+it. The check replaces the tidy in the test chain rather than following it: run
+after `go-mod`, it would always find a tidy tree, which is how CI stayed green
+over untidy committed modules for months. CI tidied in a throwaway checkout and
+discarded the result.
+
+Both no-op where there is no `examples/` directory.
 
 ## Configuration
 
