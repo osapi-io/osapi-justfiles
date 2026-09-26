@@ -37,18 +37,25 @@ go_os_tags := if os() == "linux" { `if grep -iq 'ubuntu' /etc/os-release 2>/dev/
 
 # --- Private dependency recipes ---
 
-[private]
-_go-fmt-deps:
-    go get -tool mvdan.cc/gofumpt
-    go get -tool github.com/segmentio/golines
+# Every tool these recipes run is already recorded in the consuming module's
+# `tool (...)` block, so `go tool <pkg>` resolves it from the module graph and
+# needs nothing installed. `go get -tool` would instead re-resolve each one to
+# whatever is newest and rewrite go.mod and go.sum to match.
+#
+# That rewrite is what made `go-mod-check` unpassable. It runs in the same
+# `go-test` chain, so CI mutated the checkout and then failed the build for
+# being mutated: any upstream tool release turned every open pull request red,
+# while the default branch stayed green only because its run predated the
+# release. Downloading is enough, and it changes nothing.
 
 [private]
-_go-vet-deps:
-    go get -tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+_go-fmt-deps: _go-mod-download
 
 [private]
-_go-cov-deps:
-    go get -tool github.com/boumenot/gocover-cobertura
+_go-vet-deps: _go-mod-download
+
+[private]
+_go-cov-deps: _go-mod-download
 
 # --- Setup ---
 
