@@ -20,16 +20,16 @@ Then:
 
 ```bash
 just fetch                    # Download the shared recipe file
-just docusaurus-deps          # Install the site's dependencies
-just docusaurus-start         # Development server
-just docusaurus-build         # Build the site
-just docusaurus-serve         # Serve the built site
-just docusaurus-deploy        # Deploy
-just docusaurus-clean         # Remove build output
-just docusaurus-fmt           # Reformat the site with Prettier
-just docusaurus-fmt-check     # Check site formatting
-just docusaurus-generate      # Regenerate the OpenAPI reference pages
-just docusaurus-bump 1.2.0    # Cut a versioned snapshot
+just docs-deps                # Install the site's dependencies
+just docs-start               # Development server
+just docs-build               # Build the site
+just docs-serve               # Serve the built site
+just docs-deploy              # Deploy
+just docs-clean               # Remove build output
+just docs-fmt                 # Reformat the site with Prettier
+just docs-fmt-check           # Check site formatting
+just docs-generate            # Regenerate the OpenAPI reference pages
+just docs-bump 1.2.0          # Cut a versioned snapshot
 ```
 
 ## Configuration

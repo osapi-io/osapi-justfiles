@@ -60,16 +60,16 @@ _go-cov-deps: _go-mod-download
 # --- Setup ---
 
 # Install all tool dependencies
-[group('setup')]
+[group('go')]
 go-deps: _go-fmt-deps _go-vet-deps _go-cov-deps
 
 # Download modules without changing anything
-[group('setup')]
+[group('go')]
 _go-mod-download:
     go mod download
 
 # Module maintenance (download + tidy)
-[group('setup')]
+[group('go')]
 go-mod: _go-mod-download
     #!/usr/bin/env bash
     go mod tidy
@@ -80,7 +80,7 @@ go-mod: _go-mod-download
     fi
 
 # Fail when a committed module is untidy
-[group('setup')]
+[group('go')]
 go-mod-check:
     #!/usr/bin/env bash
     # go-mod runs inside a throwaway CI checkout, so tidying there fixes
@@ -106,7 +106,7 @@ go-mod-check:
     exit "${status}"
 
 # Update dependencies of the modules under examples/
-[group('setup')]
+[group('go')]
 go-mod-bump:
     #!/usr/bin/env bash
     # Dependabot watches the directory its config names, which is the root.
@@ -129,15 +129,15 @@ go-mod-bump:
 # --- Lint ---
 
 # Report likely mistakes in packages
-[group('lint')]
+[group('go')]
 go-vet: _go-vet-deps
     go tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint run --config {{ go_git_root }}/.golangci.yml
 
 # --- Dev ---
 
 # Compile and run Go program
-[group('dev')]
-run *args:
+[group('go')]
+go-run *args:
     go run {{ go_main_package }} {{ args }}
 
 # --- Test ---
@@ -147,16 +147,17 @@ run *args:
 go_packages := "$(go list ./... | grep -v /node_modules/)"
 
 # Test packages
-[group('test')]
+[group('go')]
 go-unit:
     go test {{ go_os_tags }} -parallel 5 -race -v {{ go_packages }}
 
 # Run integration tests (requires running service)
+[group('go')]
 go-unit-int:
     go test -tags integration -v -count=1 ./test/integration/...
 
 # Generate coverage
-[group('test')]
+[group('go')]
 go-unit-cov: _go-cov-deps
     mkdir -p {{ go_coverage_dir }}
     go test {{ go_os_tags }} -race -coverprofile={{ go_coverage_dir }}/cover.out -v {{ go_packages }}
@@ -165,7 +166,7 @@ go-unit-cov: _go-cov-deps
     go tool cover -func={{ go_coverage_dir }}/cover.out
 
 # Fail when total coverage is below go_coverage_target
-[group('test')]
+[group('go')]
 go-unit-cov-check: go-unit-cov
     #!/usr/bin/env bash
     set -euo pipefail
@@ -175,7 +176,7 @@ go-unit-cov-check: go-unit-cov
       || echo "coverage ${total}% meets target {{ go_coverage_target }}%"
 
 # Show files without 100% coverage and open heatmap of only those files
-[group('test')]
+[group('go')]
 go-unit-cov-gaps: go-unit-cov
     #!/usr/bin/env bash
     set -euo pipefail
@@ -185,24 +186,24 @@ go-unit-cov-gaps: go-unit-cov
     go tool cover -html={{ go_coverage_dir }}/gaps.out
 
 # Generate coverage and show heatmap
-[group('test')]
+[group('go')]
 go-unit-cov-map: go-unit-cov
     go tool cover -html={{ go_coverage_dir }}/cover.out
 
 # Test all (mod check, fmt check, vet, coverage)
-[group('test')]
+[group('go')]
 go-test: _go-mod-download go-mod-check go-fmt-check go-vet go-unit-cov-check
 
 # --- Fmt ---
 
 # Reformat Go files with gofumpt + golines
-[group('fmt')]
+[group('go')]
 go-fmt: _go-fmt-deps
     find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs go tool mvdan.cc/gofumpt -l -w
     find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs go tool github.com/segmentio/golines --base-formatter="go tool mvdan.cc/gofumpt" -w
 
 # Check Go file formatting
-[group('fmt')]
+[group('go')]
 go-fmt-check: _go-fmt-deps
     test -z "$(find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs go tool mvdan.cc/gofumpt -d -e | tee /dev/stderr)"
     test -z "$(find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs go tool github.com/segmentio/golines --dry-run --base-formatter="go tool mvdan.cc/gofumpt" -l | tee /dev/stderr)"
@@ -210,6 +211,11 @@ go-fmt-check: _go-fmt-deps
 # --- Codegen ---
 
 # Generate Go files by processing source
-[group('codegen')]
+[group('go')]
 go-generate:
     go generate ./...
+
+# The name go-run had before every recipe took its group as its prefix.
+# Hidden from --list; remove once no repository calls it.
+[private]
+alias run := go-run

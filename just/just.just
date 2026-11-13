@@ -17,7 +17,7 @@
 # Justfile formatting recipes for osapi-io projects.
 
 # Reformat justfiles with canonical style
-[group('fmt')]
+[group('just')]
 just-fmt:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -26,7 +26,7 @@ just-fmt:
     done
 
 # Check justfile formatting
-[group('fmt')]
+[group('just')]
 just-fmt-check:
     #!/usr/bin/env bash
     set -euo pipefail

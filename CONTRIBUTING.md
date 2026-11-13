@@ -71,8 +71,10 @@ assuming the change is broken.
 ### Style
 
 - Use a `#` comment above each recipe as its description.
-- Use `[group('name')]` attributes to organize recipes (setup, test, fmt, lint,
-  dev, build, codegen, docs).
+- A recipe's group is its prefix. Every recipe in a file starts with the file's
+  prefix and carries the matching `[group('prefix')]`: `go-test` is in `go`,
+  `docs-start` is in `docs`. `just --list` then shows one block per tool, and a
+  recipe's group can be read from its name.
 - Use `[private]` for helper recipes not meant to be called directly.
 - Use kebab-case for recipe names (`fmt-check`, `unit-cov`).
 - Use a `#!/usr/bin/env bash` shebang for multi-line shell blocks.

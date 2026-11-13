@@ -37,52 +37,52 @@ react_fmt_pattern := "src/**/*.{ts,tsx,css}"
 # --- Setup ---
 
 # Install all dependencies
-[group('setup')]
+[group('react')]
 react-deps:
     cd {{ react_dir }} && bun install
 
 # --- Dev ---
 
 # Start development server
-[group('dev')]
+[group('react')]
 react-dev:
     cd {{ react_dir }} && bun run dev
 
 # --- Build ---
 
 # Production build
-[group('build')]
+[group('react')]
 react-build:
     cd {{ react_dir }} && bun run build
 
 # --- Lint ---
 
 # Report likely mistakes in source
-[group('lint')]
+[group('react')]
 react-lint:
     cd {{ react_dir }} && bun run lint
 
 # --- Test ---
 
 # Test all (fmt check, lint, build)
-[group('test')]
+[group('react')]
 react-test: react-fmt-check react-lint react-build
 
 # --- Fmt ---
 
 # Reformat source with Prettier
-[group('fmt')]
+[group('react')]
 react-fmt:
     cd {{ react_dir }} && bunx prettier --write "{{ react_fmt_pattern }}"
 
 # Check source formatting
-[group('fmt')]
+[group('react')]
 react-fmt-check:
     cd {{ react_dir }} && bunx prettier --check "{{ react_fmt_pattern }}"
 
 # --- Codegen ---
 
 # Generate TypeScript SDK from OpenAPI spec
-[group('codegen')]
+[group('react')]
 react-generate:
     cd {{ react_dir }} && bunx orval

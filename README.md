@@ -28,9 +28,11 @@ vendoring them.
 
 ## Usage
 
-Shared recipes are consumed with `import?`. Each module is a single recipe file
-whose recipes and variables are prefixed with the module name, fetched from this
-repo into `.just/remote/`.
+Shared recipes are consumed with `import?`. Each module is a single recipe file,
+fetched from this repo into `.just/remote/`. Its variables are prefixed with the
+module name. Its recipes are prefixed with their group, which `just --list`
+shows as a heading: the module name, except `docusaurus`, whose recipes are
+`docs-*`.
 
 ```just
 import? '.just/remote/go.just'

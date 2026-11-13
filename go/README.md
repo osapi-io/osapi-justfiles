@@ -33,6 +33,7 @@ just go-fmt                # Reformat with gofumpt and golines
 just go-fmt-check          # Check formatting
 just go-vet                # Run golangci-lint
 just go-generate           # Run go generate
+just go-run *args          # Compile and run the main package
 just go-mod                # Download, then tidy the root and examples/
 just go-mod-check          # Fail when a committed module is untidy
 just go-mod-bump           # Update dependencies of the modules under examples/
