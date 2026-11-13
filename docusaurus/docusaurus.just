@@ -27,57 +27,90 @@ docusaurus_dir := "docs"
 docusaurus_host := "localhost"
 docusaurus_port := "3001"
 
-[group('setup')]
+[group('docs')]
 [private]
-_docusaurus-bun-install:
+_docs-bun-install:
     cd {{ docusaurus_dir }} && bun install
 
 # Install documentation tooling
-[group('setup')]
-docusaurus-deps: _docusaurus-bun-install
+[group('docs')]
+docs-deps: _docs-bun-install
 
 # Build the site
-[group('build')]
-docusaurus-build: _docusaurus-bun-install
+[group('docs')]
+docs-build: _docs-bun-install
     cd {{ docusaurus_dir }} && bun run docusaurus build
 
 # Start the development server
-[group('dev')]
-docusaurus-start: _docusaurus-bun-install
+[group('docs')]
+docs-start: _docs-bun-install
     cd {{ docusaurus_dir }} && bun run docusaurus start --no-open --host={{ docusaurus_host }} --port={{ docusaurus_port }}
 
 # Serve the built site
-[group('dev')]
-docusaurus-serve: _docusaurus-bun-install
+[group('docs')]
+docs-serve: _docs-bun-install
     cd {{ docusaurus_dir }} && bun run docusaurus serve --no-open --host={{ docusaurus_host }} --port={{ docusaurus_port }}
 
 # Remove build output
-[group('build')]
-docusaurus-clean:
+[group('docs')]
+docs-clean:
     rm -rf {{ docusaurus_dir }}/build
 
 # Cut a versioned docs snapshot
-[group('build')]
-docusaurus-bump version:
+[group('docs')]
+docs-bump version:
     cd {{ docusaurus_dir }} && bun run docusaurus docs:version {{ version }}
 
 # Deploy the site
-[group('build')]
-docusaurus-deploy:
+[group('docs')]
+docs-deploy:
     cd {{ docusaurus_dir }} && bun run docusaurus deploy
 
 # Reformat the site with Prettier
-[group('fmt')]
-docusaurus-fmt: _docusaurus-bun-install
+[group('docs')]
+docs-fmt: _docs-bun-install
     cd {{ docusaurus_dir }} && bun run prettier . --write --config prettier.config.js --ignore-path .prettierignore
 
 # Check site formatting
-[group('fmt')]
-docusaurus-fmt-check: _docusaurus-bun-install
+[group('docs')]
+docs-fmt-check: _docs-bun-install
     cd {{ docusaurus_dir }} && bun run prettier . --check --config prettier.config.js --ignore-path .prettierignore
 
 # Regenerate the OpenAPI reference pages
-[group('codegen')]
-docusaurus-generate: _docusaurus-bun-install
+[group('docs')]
+docs-generate: _docs-bun-install
     cd {{ docusaurus_dir }} && rm -rf docs/gen/
     cd {{ docusaurus_dir }} && bun run docusaurus gen-api-docs all
+
+# The names these recipes had before every recipe took its group as its
+# prefix. Hidden from --list; remove once no repository calls them.
+
+[private]
+alias docusaurus-deps := docs-deps
+
+[private]
+alias docusaurus-build := docs-build
+
+[private]
+alias docusaurus-start := docs-start
+
+[private]
+alias docusaurus-serve := docs-serve
+
+[private]
+alias docusaurus-clean := docs-clean
+
+[private]
+alias docusaurus-bump := docs-bump
+
+[private]
+alias docusaurus-deploy := docs-deploy
+
+[private]
+alias docusaurus-fmt := docs-fmt
+
+[private]
+alias docusaurus-fmt-check := docs-fmt-check
+
+[private]
+alias docusaurus-generate := docs-generate

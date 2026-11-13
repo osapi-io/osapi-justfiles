@@ -50,11 +50,11 @@ md_extra_excludes := ""
 # diff and loses the numbering in the source.
 
 # Reformat repository markdown with mdformat
-[group('fmt')]
+[group('md')]
 md-fmt:
     uvx --python {{ md_python }} --from mdformat=={{ md_version }} --with mdformat-gfm=={{ md_gfm_version }} mdformat --number --wrap {{ md_wrap }} {{ md_excludes }} {{ md_site_exclude }} {{ md_extra_excludes }} .
 
 # Check repository markdown formatting
-[group('fmt')]
+[group('md')]
 md-fmt-check:
     uvx --python {{ md_python }} --from mdformat=={{ md_version }} --with mdformat-gfm=={{ md_gfm_version }} mdformat --check --number --wrap {{ md_wrap }} {{ md_excludes }} {{ md_site_exclude }} {{ md_extra_excludes }} .
