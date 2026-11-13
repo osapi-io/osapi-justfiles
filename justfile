@@ -8,6 +8,10 @@ import? '.just/remote/md.just'
 # No documentation site, so md formats every markdown file in the repository.
 md_site_dir := ""
 
+# List the recipes
+default:
+    @just --list
+
 # Fetch shared justfiles from osapi-justfiles
 fetch:
     mkdir -p .just/remote
