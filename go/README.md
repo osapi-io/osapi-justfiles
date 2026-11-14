@@ -1,14 +1,14 @@
 # go.just
 
-Builds, tests, formats, lints, and measures coverage for a Go project using
+Builds, tests, formats, lints, and measures coverage for a Go project with
 [gofumpt](https://github.com/mvdan/gofumpt),
 [golines](https://github.com/segmentio/golines),
 [golangci-lint](https://golangci-lint.run), and `go test`.
 
 ## Usage
 
-`go.just` is consumed with `import?` rather than `mod?`. Its recipes are flat
-and prefixed, so it needs no `.mod.just` shim:
+A consumer imports `go.just` with `import?`, not with `mod?`. Its recipes are
+flat, and their names have a prefix. Thus it needs no `.mod.just` shim:
 
 ```just
 import? '.just/remote/go.just'
@@ -41,20 +41,22 @@ just go-mod-bump           # Update dependencies of the modules under examples/
 
 ### Nested modules
 
-A module under `examples/` has its own `go.mod`, and Dependabot watches only the
-directory its config names. `go-mod-bump` updates them, with `go get -u`
-followed by `go mod tidy`: tidy alone reconciles what a module already requires
-and never advances a version. The root module is left to Dependabot, since
-bumping it here would also move the tool versions `go get -tool` manages.
+A Go module under `examples/` has its own `go.mod`. Dependabot watches only the
+directory that its configuration names. `go-mod-bump` updates these Go modules.
+It runs `go get -u`, then `go mod tidy`. Tidy alone only makes the module agree
+with what it already requires, and it never increases a version. Dependabot
+updates the root module. If `go-mod-bump` updated the root module, it would also
+change the tool versions that `go get -tool` manages.
 
-`go-mod-check` reports untidy modules rather than repairing them, and `go-test`
-depends on it. `go-mod` performs the fix, and the check's failure message names
-it. The check replaces the tidy in the test chain rather than following it: run
-after `go-mod`, it would always find a tidy tree, which is how CI stayed green
-over untidy committed modules for months. CI tidied in a throwaway checkout and
-discarded the result.
+`go-mod-check` reports Go modules that are not tidy, but it does not repair
+them. `go-test` depends on `go-mod-check`. `go-mod` does the repair, and the
+failure message of the check names `go-mod`. In the test chain, the check
+replaces the tidy step. It does not run after the tidy step. If the check ran
+after `go-mod`, it would always find a tidy tree. This occurred before. For
+months, CI passed while committed Go modules were not tidy. CI made the modules
+tidy in a temporary checkout, and then discarded the result.
 
-Both no-op where there is no `examples/` directory.
+If there is no `examples/` directory, the two recipes do nothing.
 
 ## Configuration
 
@@ -77,17 +79,18 @@ import? '.just/remote/go.just'
 go_coverage_target := "99.9"
 ```
 
-The assignment is in scope when just parses the file, so
-`just go-unit-cov-check` and `just test` agree, and a one-off override works on
-the command line:
+The assignment is in scope when just parses the file. Thus
+`just go-unit-cov-check` and `just test` use the same value. You can also change
+the value for one run on the command line:
 
 ```bash
 just go_coverage_target=95 go-unit-cov-check
 ```
 
-Do not use `export` for this. It reaches child processes but not the parse of
-its own file, so a recipe run by name would use the default while the same
-recipe reached through another recipe used the override.
+Do not use `export` for this. An exported variable goes to child processes, but
+just does not use it when it parses its own file. Thus a recipe that you run by
+name uses the default. The same recipe, when another recipe runs it, uses the
+new value.
 
 ## License
 

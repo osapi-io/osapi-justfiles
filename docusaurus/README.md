@@ -4,8 +4,9 @@ Builds, serves, deploys, and formats a [Docusaurus](https://docusaurus.io) site.
 
 ## Usage
 
-`docusaurus.just` is consumed with `import?` rather than `mod?`. Its recipes are
-flat and prefixed, so it needs no `.mod.just` shim.
+A consumer imports `docusaurus.just` with `import?`, not with `mod?`. Its
+recipes are flat, and their names have a prefix. Thus it needs no `.mod.just`
+shim.
 
 ```just
 import? '.just/remote/docusaurus.just'
@@ -40,7 +41,8 @@ just docs-bump 1.2.0          # Cut a versioned snapshot
 | `docusaurus_host` | `localhost` | Development server host    |
 | `docusaurus_port` | `3001`      | Development server port    |
 
-Override by setting `allow-duplicate-variables` and assigning again:
+To change a variable, set `allow-duplicate-variables` and assign the variable
+again:
 
 ```just
 set allow-duplicate-variables
@@ -53,11 +55,11 @@ docusaurus_port := "3002"
 ## Formatting
 
 This module formats its own directory, and the [`md`](../md/README.md) module
-excludes it. Docusaurus content contains MDX and component syntax that mdformat
-cannot parse, so prettier owns those files.
+does not format it. Docusaurus content has MDX and component syntax that
+mdformat cannot parse. Thus only prettier formats those files.
 
-Set `md_site_dir` to the same value in repositories that use both, so the
-exclusion matches where the site actually is.
+In a repository that uses the two modules, set `md_site_dir` to the same value.
+Then the exclusion agrees with the location of the site.
 
 ## License
 

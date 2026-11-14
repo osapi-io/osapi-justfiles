@@ -1,12 +1,13 @@
 # ansible.just
 
 Runs, lints and formats [Ansible](https://docs.ansible.com) through
-[uv](https://docs.astral.sh/uv/), from a project's Ansible directory.
+[uv](https://docs.astral.sh/uv/). The recipes run from the Ansible directory of
+the consumer.
 
 ## Usage
 
-`ansible.just` is consumed with `import?` rather than `mod?`. Its recipes are
-flat and prefixed, so it needs no `.mod.just` shim.
+A consumer imports `ansible.just` with `import?`, not with `mod?`. Its recipes
+are flat, and their names have a prefix. Thus it needs no `.mod.just` shim.
 
 ```just
 import? '.just/remote/ansible.just'
@@ -29,7 +30,7 @@ just ansible-lint            # Run ansible-lint, syntax check included
 just ansible-test            # fmt-check, lint
 ```
 
-A project's own recipes name its playbooks:
+The recipes of the consumer name its playbooks:
 
 ```just
 # Rebuild the fleet
@@ -44,19 +45,22 @@ push:
 | `ansible_dir`       | `ansible`   | The Ansible directory, from the repository root |
 | `ansible_playbooks` | `playbooks` | Where playbooks are, inside `ansible_dir`       |
 
-Override one by defining it after the import, with
+To change a variable, define it again after the import, with
 `set allow-duplicate-variables`.
 
-The Ansible directory holds `ansible.cfg`, which Ansible reads from the current
-directory, so every recipe runs from there. It also holds a `pyproject.toml`
-depending on `ansible`, with `ansible-lint` as a dev dependency, and the
-`uv.lock` that pins them. Every recipe goes through `uv run`; an Ansible on the
-path is never used, since it is whatever somebody happened to install.
+The Ansible directory holds `ansible.cfg`. Ansible reads this file from the
+current directory, thus each recipe runs from the Ansible directory. The
+directory also holds a `pyproject.toml` and a `uv.lock`. The `pyproject.toml`
+has a dependency on `ansible`, and a dev dependency on `ansible-lint`. The
+`uv.lock` pins their versions.
 
-`ansible-fmt-check` runs only ansible-lint's `yaml` rules, so it fails on
-formatting and nothing else. `ansible-fmt` applies every fix ansible-lint knows;
-`ansible-lint` reports what is left, and its `syntax-check` rule parses every
-playbook, so no separate syntax recipe is needed.
+Each recipe runs through `uv run`. The recipes never use an Ansible on the path,
+because its version is not known.
+
+`ansible-fmt-check` runs only the `yaml` rules of ansible-lint. Thus it fails
+only on formatting. `ansible-fmt` applies all the fixes that ansible-lint knows.
+`ansible-lint` reports the problems that remain. Its `syntax-check` rule parses
+each playbook, thus there is no separate recipe for the syntax check.
 
 ## License
 

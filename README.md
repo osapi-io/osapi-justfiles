@@ -21,17 +21,18 @@
 </p>
 
 <p align="center">
-Six modules of just recipes, fetched over HTTP and imported optionally, so
-every repository in the organization runs the same build steps without
-vendoring them.
+Six modules of just recipes. Each repository in the organization downloads
+them over HTTP and imports them as optional. Thus all repositories run the same
+build steps, and no repository keeps a copy.
 </p>
 
 ## Usage
 
-Shared recipes are consumed with `import?`. Each module is a single recipe file,
-fetched from this repo into `.just/remote/`. Its variables are prefixed with the
-module name. Its recipes are prefixed with their group, which `just --list`
-shows as a heading: the module name, except `docusaurus`, whose recipes are
+A consumer imports the shared recipes with `import?`. Each module is one recipe
+file. The consumer downloads it from this repository into `.just/remote/`. The
+name of each variable starts with the module name. The name of each recipe
+starts with its group, and `just --list` shows the group as a heading. The group
+is the module name. The exception is `docusaurus`, which has the recipes
 `docs-*`.
 
 ```just
@@ -45,8 +46,8 @@ fetch:
     curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/md/md.just -o .just/remote/md.just
 ```
 
-Then run `just fetch` to download the shared recipes, and they become available
-by their prefixed names:
+Then run `just fetch` to download the shared recipes. After that, you can run
+each recipe by its prefixed name:
 
 ```bash
 $ just fetch          # Download shared justfiles
@@ -57,8 +58,9 @@ $ just go-fmt         # Auto-format code
 $ just md-fmt-check   # Check markdown formatting
 ```
 
-A module ships defaults for anything that varies by repository. To use a
-different value, set `allow-duplicate-variables` and assign it again:
+A module has a default for each value that can be different in each repository.
+To use a different value, set `allow-duplicate-variables` and assign the
+variable again:
 
 ```just
 set allow-duplicate-variables
@@ -76,12 +78,12 @@ Add `.just/` to `.gitignore`:
 
 ### Lazy tool dependencies
 
-Each recipe installs its own tool dependencies on first use via private
-`_*-deps` recipes. There is no need to run `deps` before using a recipe. Tools
-are pulled automatically. `go-deps` is a convenience that installs all tools
-upfront.
+Each recipe installs its own tools the first time that it runs. It uses private
+`_*-deps` recipes to do this. Thus you do not have to run `deps` before you use
+a recipe. `go-deps` installs all the tools at one time, before you need them.
 
-Projects define a top-level `deps` recipe that calls each module's `deps`:
+A consumer defines a top-level `deps` recipe that calls the `deps` recipe of
+each module:
 
 ```just
 # Install all dependencies
@@ -94,9 +96,9 @@ deps:
 
 `go-docs` and `go-docs-check` use
 [gomarkdoc](https://github.com/princjef/gomarkdoc) to generate one markdown file
-per package into `JUST_DOCS_DIR`, skipping `mocks` and `main` packages.
-`go-docs-check` is **not** included in `go-test` by default. Add it to your
-project's `test` recipe where needed:
+for each package into `JUST_DOCS_DIR`. They do not generate files for the
+`mocks` and `main` packages. By default, `go-test` does **not** include
+`go-docs-check`. If you need it, add it to the `test` recipe of your consumer:
 
 ```just
 test:
@@ -106,13 +108,14 @@ test:
 
 ### Nested modules
 
-A module under `examples/` has its own `go.mod` that Dependabot does not watch.
-`go-mod-bump` updates them and `go-mod-check`, which `go-test` depends on, fails
-when a committed one is untidy. [go/README.md](go/README.md) has the detail.
+A Go module under `examples/` has its own `go.mod`, and Dependabot does not
+watch it. `go-mod-bump` updates these modules. `go-mod-check` fails when a
+committed module is not tidy, and `go-test` depends on `go-mod-check`.
+[go/README.md](go/README.md) has the details.
 
 ## Documentation
 
-Each module lives in its own directory and documents itself:
+Each module is in its own directory, with a README that describes it:
 
 | Module       | Description                                       | Docs                                         |
 | ------------ | ------------------------------------------------- | -------------------------------------------- |
@@ -125,8 +128,8 @@ Each module lives in its own directory and documents itself:
 
 ## Contributing
 
-See the [Contributing](CONTRIBUTING.md) guide for prerequisites, setup,
-conventions, and the PR workflow.
+The [Contributing](CONTRIBUTING.md) guide gives the prerequisites, the setup,
+the conventions, and the PR workflow.
 
 ## License
 
