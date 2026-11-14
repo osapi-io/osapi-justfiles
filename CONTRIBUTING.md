@@ -45,11 +45,6 @@ marketplace:
 - **commit-commands.** Gives the `/commit` and `/commit-push-pr` slash commands.
   These commands follow the commit conventions of this repository.
 
-**Design is done in the design documents.** Write or change the page in
-[osapi-io/specs](https://github.com/osapi-io/specs) before you build. Correct
-the page where the build shows that it is wrong. A design document in this
-repository becomes old when the code changes, and nothing finds the difference.
-
 ## Making changes
 
 Edit the `.just` files. To test a change before it is merged, change the `fetch`
