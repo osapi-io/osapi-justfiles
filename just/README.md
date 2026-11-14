@@ -1,6 +1,7 @@
 # just.just
 
-Formats and checks the justfiles in a repository with the formatter of just.
+This module formats and checks the justfiles in a repository with the formatter
+of just.
 
 ## Usage
 
@@ -16,7 +17,7 @@ fetch:
     curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/just/just.just -o .just/remote/just.just
 ```
 
-Then:
+Then run these recipes:
 
 ```bash
 just fetch            # Download the shared recipe file
@@ -26,7 +27,8 @@ just just-fmt-check   # Check formatting, non-zero exit on drift
 
 ## What it covers
 
-All `justfile` and `*.just` files in the repository, except these:
+The module formats all `justfile` and `*.just` files in the repository, except
+these:
 
 | Skipped        | Why                                                         |
 | -------------- | ----------------------------------------------------------- |

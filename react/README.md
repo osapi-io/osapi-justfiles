@@ -1,6 +1,6 @@
 # react.just
 
-Builds, lints, formats, and serves a React application with
+This module builds, lints, formats, and serves a React application with
 [Bun](https://bun.sh), [Prettier](https://prettier.io),
 [ESLint](https://eslint.org), and [orval](https://orval.dev).
 
@@ -19,9 +19,9 @@ fetch:
 ```
 
 The default of `react_dir` is `.`, the repository root. If the application is in
-a different directory, change `react_dir`. Refer to Configuration below.
+a different directory, change `react_dir`. See Configuration.
 
-Then:
+Then run these recipes:
 
 ```bash
 just fetch              # Download the shared recipe file
@@ -37,12 +37,12 @@ just react-generate     # Regenerate the TypeScript SDK with orval
 
 ## Configuration
 
-| Variable            | Default                 | Purpose                         |
-| ------------------- | ----------------------- | ------------------------------- |
-| `react_dir`         | `.`                     | Directory holding the React app |
-| `react_fmt_pattern` | `src/**/*.{ts,tsx,css}` | Glob Prettier formats           |
+| Variable            | Default                 | Purpose                                    |
+| ------------------- | ----------------------- | ------------------------------------------ |
+| `react_dir`         | `.`                     | Directory that holds the React application |
+| `react_fmt_pattern` | `src/**/*.{ts,tsx,css}` | Glob that Prettier formats                 |
 
-To change a variable, set `allow-duplicate-variables` and assign the variable
+To change a variable, set `allow-duplicate-variables`. Then assign the variable
 again:
 
 ```just
