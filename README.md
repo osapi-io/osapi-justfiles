@@ -92,20 +92,6 @@ deps:
     go get -tool github.com/golang/mock/mockgen
 ```
 
-### Documentation generation
-
-`go-docs` and `go-docs-check` use
-[gomarkdoc](https://github.com/princjef/gomarkdoc) to generate one markdown file
-for each package into `JUST_DOCS_DIR`. They do not generate files for the
-`mocks` and `main` packages. By default, `go-test` does **not** include
-`go-docs-check`. If you need it, add it to the `test` recipe of your consumer:
-
-```just
-test:
-    just go-test
-    just go-docs-check
-```
-
 ### Nested Go modules
 
 A Go module under `examples/` has its own `go.mod`. Dependabot does not watch
