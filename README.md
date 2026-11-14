@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-<p align="center">The shared just recipes every osapi-io repository builds with.</p>
+<p align="center">The shared just recipes that every osapi-io repository uses to build.</p>
 
 <p align="center">
   <a href="https://github.com/osapi-io/osapi-justfiles/actions/workflows/just-lint.yml"><img alt="just lint" src="https://img.shields.io/github/actions/workflow/status/osapi-io/osapi-justfiles/just-lint.yml?branch=main&style=for-the-badge"></a>
@@ -17,23 +17,23 @@
 </p>
 
 <p align="center">
-<b>One place for the build, so six repositories agree.</b>
+<b>The build is in one place, so six repositories agree.</b>
 </p>
 
 <p align="center">
-Six modules of just recipes. Each repository in the organization downloads
-them over HTTP and imports them as optional. Thus all repositories run the same
-build steps, and no repository keeps a copy.
+This repository has six modules of just recipes. Each repository in the
+organization downloads them over HTTP and imports them as optional. Thus all
+repositories run the same build steps. No repository keeps a copy.
 </p>
 
 ## Usage
 
 A consumer imports the shared recipes with `import?`. Each module is one recipe
-file. The consumer downloads it from this repository into `.just/remote/`. The
-name of each variable starts with the module name. The name of each recipe
-starts with its group, and `just --list` shows the group as a heading. The group
-is the module name. The exception is `docusaurus`, which has the recipes
-`docs-*`.
+file. The consumer downloads it from this repository into `.just/remote/`.
+
+The name of each variable starts with the module name. The name of each recipe
+starts with its group. `just --list` shows the group as a heading. The group is
+the module name. The exception is `docusaurus`, which has the recipes `docs-*`.
 
 ```just
 import? '.just/remote/go.just'
@@ -59,7 +59,7 @@ $ just md-fmt-check   # Check markdown formatting
 ```
 
 A module has a default for each value that can be different in each repository.
-To use a different value, set `allow-duplicate-variables` and assign the
+To use a different value, set `allow-duplicate-variables`. Then assign the
 variable again:
 
 ```just
@@ -92,30 +92,30 @@ deps:
     go get -tool github.com/golang/mock/mockgen
 ```
 
-### Nested modules
+### Nested Go modules
 
-A Go module under `examples/` has its own `go.mod`, and Dependabot does not
-watch it. `go-mod-bump` updates these modules. `go-mod-check` fails when a
-committed module is not tidy, and `go-test` depends on `go-mod-check`.
+A Go module under `examples/` has its own `go.mod`. Dependabot does not watch
+it. `go-mod-bump` updates these Go modules. `go-mod-check` fails when a
+committed Go module is not tidy. `go-test` depends on `go-mod-check`.
 [go/README.md](go/README.md) has the details.
 
 ## Documentation
 
 Each module is in its own directory, with a README that describes it:
 
-| Module       | Description                                       | Docs                                         |
-| ------------ | ------------------------------------------------- | -------------------------------------------- |
-| `ansible`    | Ansible run, lint and format, through uv          | [ansible/README.md](ansible/README.md)       |
-| `docusaurus` | Docusaurus site build, serve, deploy, formatting  | [docusaurus/README.md](docusaurus/README.md) |
-| `go`         | Go build, test, coverage gate, format, lint       | [go/README.md](go/README.md)                 |
-| `md`         | Repository markdown formatting (mdformat via uvx) | [md/README.md](md/README.md)                 |
-| `just`       | Justfile formatting                               | [just/README.md](just/README.md)             |
-| `react`      | React app build, lint, format, SDK codegen (Bun)  | [react/README.md](react/README.md)           |
+| Module       | Description                                              | Docs                                         |
+| ------------ | -------------------------------------------------------- | -------------------------------------------- |
+| `ansible`    | Ansible run, lint and format, through uv                 | [ansible/README.md](ansible/README.md)       |
+| `docusaurus` | Docusaurus site build, serve, deploy, format             | [docusaurus/README.md](docusaurus/README.md) |
+| `go`         | Go build, test, coverage gate, format, lint              | [go/README.md](go/README.md)                 |
+| `md`         | Repository markdown format (mdformat via uvx)            | [md/README.md](md/README.md)                 |
+| `just`       | Justfile format                                          | [just/README.md](just/README.md)             |
+| `react`      | React application build, lint, format, SDK codegen (Bun) | [react/README.md](react/README.md)           |
 
 ## Contributing
 
-The [Contributing](CONTRIBUTING.md) guide gives the prerequisites, the setup,
-the conventions, and the PR workflow.
+The [Contributing](CONTRIBUTING.md) guide gives the prerequisites, the recipe
+conventions, and the pull request workflow.
 
 ## License
 
