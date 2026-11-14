@@ -38,15 +38,14 @@ changes". Do the procedure, and write in the PR which consumer you used.
 
 ## Repository structure
 
-| Path                                  | What it is                                                       |
-| ------------------------------------- | ---------------------------------------------------------------- |
-| `<module>/<module>.just`              | The recipes of a module, with the README of the module beside it |
-| `<module>.just` + `<module>.mod.just` | Older module with a shim, documented in the root README          |
-| `justfile`                            | The recipes of this repository, which use the `just` module      |
-| `Dockerfile`, `.dockerignore`         | Publishes all recipe files, flattened, as a scratch image        |
+| Path                          | What it is                                                       |
+| ----------------------------- | ---------------------------------------------------------------- |
+| `<module>/<module>.just`      | The recipes of a module, with the README of the module beside it |
+| `justfile`                    | The recipes of this repository, which use the `just` module      |
+| `Dockerfile`, `.dockerignore` | Publishes all recipe files, flattened, as a scratch image        |
 
-There are two styles to import a module. The specification defines the two
-styles. Do not change one style to the other because it looks like an error.
+A consumer imports a module in one way: `import?` of the downloaded recipe file.
+The root README shows it.
 
 ## Commit trailer
 
