@@ -62,7 +62,8 @@ If the interpreter is not there, uv downloads it.
 ## Exclusions
 
 By default, the module does not format `node_modules/`, `.worktrees/`,
-`.claude/`, and `.just/`.
+`.claude/`, `.just/`, and the Docusaurus site directory, `docs/`
+(`md_site_dir`).
 
 A tool generates the files in `.claude/`, and writes them again later. If the
 module formats them, CI and the tool change the same files again and again.
@@ -70,15 +71,17 @@ module formats them, CI and the tool change the same files again and again.
 **⚠️ Do not use `md.just` and `docusaurus.just` on the same files.** The two
 modules use different formatters, mdformat and Prettier, and they give different
 output. Thus each module reverses the changes of the other. A repository can use
-the two modules, but on different paths. `md.just` scans the full repository.
-Thus a repository with a Docusaurus site under `docs/` must exclude the site:
+the two modules, but on different paths. `md.just` does not format
+`md_site_dir`, `docs` by default, which `docusaurus.just` formats. If the site
+is in a different directory, set `md_site_dir` to that directory. If the
+repository has no site, set `md_site_dir` to `""`:
 
 ```just
 set allow-duplicate-variables := true
 
 import? '.just/remote/md.just'
 
-md_extra_excludes := "--exclude 'docs/**'"
+md_site_dir := "website"
 ```
 
 mdformat does not know the GitHub alert syntax (`> [!WARNING]`). It changes an
@@ -87,13 +90,14 @@ use bold text for callouts.
 
 ## Configuration
 
-| Variable            | Default | Description                                   |
-| ------------------- | ------- | --------------------------------------------- |
-| `md_version`        | `1.0.0` | mdformat version                              |
-| `md_gfm_version`    | `1.0.0` | mdformat-gfm plugin version                   |
-| `md_wrap`           | `80`    | Line wrap width                               |
-| `md_extra_excludes` | (empty) | Extra `--exclude` flags added to the defaults |
-| `md_python`         | `3.13`  | Python interpreter (`--exclude` needs 3.13+)  |
+| Variable            | Default | Description                                    |
+| ------------------- | ------- | ---------------------------------------------- |
+| `md_version`        | `1.0.0` | mdformat version                               |
+| `md_gfm_version`    | `1.0.0` | mdformat-gfm plugin version                    |
+| `md_wrap`           | `80`    | Line wrap width                                |
+| `md_site_dir`       | `docs`  | Site directory that the module does not format |
+| `md_extra_excludes` | (empty) | Extra `--exclude` flags added to the defaults  |
+| `md_python`         | `3.13`  | Python interpreter (`--exclude` needs 3.13+)   |
 
 To change a variable, set `allow-duplicate-variables`. Then assign the variable
 again:
@@ -105,3 +109,7 @@ import? '.just/remote/md.just'
 
 md_wrap := "100"
 ```
+
+## License
+
+The [MIT](../LICENSE) License.
