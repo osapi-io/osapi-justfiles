@@ -1,12 +1,12 @@
 # ansible.just
 
-Runs, lints and formats Ansible, through [uv](https://docs.astral.sh/uv/), from
-a project's Ansible directory.
+Runs, lints and formats [Ansible](https://docs.ansible.com) through
+[uv](https://docs.astral.sh/uv/), from a project's Ansible directory.
 
 ## Usage
 
-Consumed with `import?`, like `md.just`. Its recipes are flat and prefixed, and
-run from the importing justfile's directory:
+`ansible.just` is consumed with `import?` rather than `mod?`. Its recipes are
+flat and prefixed, so it needs no `.mod.just` shim.
 
 ```just
 import? '.just/remote/ansible.just'
@@ -17,27 +17,27 @@ fetch:
     curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/ansible/ansible.just -o .just/remote/ansible.just
 ```
 
-A project's own recipes name its playbooks and call `ansible-play`:
+Then:
 
-```just
-# Show what the lab is running
-list:
-    just ansible-play list
+```bash
+just fetch                   # Download the shared recipe file
+just ansible-deps            # Install Ansible and ansible-lint from uv.lock
+just ansible-run <playbook>  # Run playbooks/<playbook>.yml; extra args pass through
+just ansible-fmt             # Reformat with ansible-lint's fixes
+just ansible-fmt-check       # Check formatting
+just ansible-lint            # Run ansible-lint, syntax check included
+just ansible-test            # fmt-check, lint
 ```
 
-## Recipes
+A project's own recipes name its playbooks:
 
-| Recipe                        | Description                                           |
-| ----------------------------- | ----------------------------------------------------- |
-| `ansible-deps`                | Install Ansible and its tools from the `uv.lock`      |
-| `ansible-play playbook *args` | Run `playbooks/<playbook>.yml`, passing `args` along  |
-| `ansible-lint`                | Report likely mistakes in roles and playbooks         |
-| `ansible-syntax`              | Check every playbook parses                           |
-| `ansible-test`                | `ansible-fmt-check`, `ansible-lint`, `ansible-syntax` |
-| `ansible-fmt`                 | Reformat with `ansible-lint --fix`                    |
-| `ansible-fmt-check`           | Fail on YAML formatting drift                         |
+```just
+# Rebuild the fleet
+push:
+    just ansible-run push -K
+```
 
-## Variables
+## Configuration
 
 | Variable            | Default     | Meaning                                         |
 | ------------------- | ----------- | ----------------------------------------------- |
@@ -47,24 +47,16 @@ list:
 Override one by defining it after the import, with
 `set allow-duplicate-variables`.
 
-## Requirements
+The Ansible directory holds `ansible.cfg`, which Ansible reads from the current
+directory, so every recipe runs from there. It also holds a `pyproject.toml`
+depending on `ansible`, with `ansible-lint` as a dev dependency, and the
+`uv.lock` that pins them. Every recipe goes through `uv run`; an Ansible on the
+path is never used, since it is whatever somebody happened to install.
 
-[uv](https://docs.astral.sh/uv/), and an Ansible directory holding:
-
-- `pyproject.toml` depending on `ansible`, with `ansible-lint` as a dev
-  dependency, and the `uv.lock` that pins them.
-- `ansible.cfg`. Ansible reads it from the current directory, which is why every
-  recipe runs from `ansible_dir`.
-
-Every recipe goes through `uv run`, so the Ansible that runs is the one the lock
-file pins. An `ansible-playbook` on the path is never used: it is whatever
-somebody happened to install, and it differs from machine to machine and from
-continuous integration.
-
-`ansible-fmt-check` runs only ansible-lint's `yaml` rules, so it reports
-formatting and nothing else. `ansible-fmt` applies every fix ansible-lint knows,
-which includes module names as well as formatting; `ansible-lint` reports
-whatever is left.
+`ansible-fmt-check` runs only ansible-lint's `yaml` rules, so it fails on
+formatting and nothing else. `ansible-fmt` applies every fix ansible-lint knows;
+`ansible-lint` reports what is left, and its `syntax-check` rule parses every
+playbook, so no separate syntax recipe is needed.
 
 ## License
 

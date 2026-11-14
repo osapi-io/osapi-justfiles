@@ -14,69 +14,50 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
-
 # Ansible recipes for osapi-io projects.
 #
-# Consumed with `import?`; recipes are flat and prefixed (ansible-*). Ansible
-# runs through uv from the consuming project's Ansible directory, so the version
-# is the one its uv.lock pins, never whatever is on the path. That directory
-# holds pyproject.toml (with ansible and, as a dev dependency, ansible-lint),
-# ansible.cfg, and the playbooks.
-#
-# Override in the consuming justfile, after the import, when the defaults do not
-# fit:
-#
-#     ansible_dir := "ansible"
-#     ansible_playbooks := "playbooks"
+# Consumed with `import?`, not `mod?`: recipes are flat and prefixed
+# (ansible-*). Ansible runs through uv from the project's Ansible directory, so
+# the version is the one its uv.lock pins, never one from the path.
 
 ansible_dir := "ansible"
 ansible_playbooks := "playbooks"
 
 # --- Setup ---
 
-# Install Ansible and its tools from the project's uv.lock
-[group('setup')]
+# Install Ansible and ansible-lint from the project's uv.lock
+[group('ansible')]
 ansible-deps:
     cd {{ ansible_dir }} && uv sync
 
-# --- Run ---
+# --- Dev ---
 
-# Run a playbook by name, such as `just ansible-play site -K`
-[group('run')]
-ansible-play playbook *args:
+# Run a playbook by name, such as `just ansible-run site -K`
+[group('ansible')]
+ansible-run playbook *args:
     cd {{ ansible_dir }} && uv run ansible-playbook {{ ansible_playbooks }}/{{ playbook }}.yml {{ args }}
 
 # --- Lint ---
 
-# Report likely mistakes in roles and playbooks
-[group('lint')]
+# Report likely mistakes in roles and playbooks, syntax included
+[group('ansible')]
 ansible-lint:
     cd {{ ansible_dir }} && uv run ansible-lint
 
-# Check every playbook parses
-[group('lint')]
-ansible-syntax:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    cd {{ ansible_dir }}
-    for playbook in {{ ansible_playbooks }}/*.yml; do
-      uv run ansible-playbook --syntax-check "$playbook" > /dev/null
-    done
-
 # --- Test ---
 
-# Test all (fmt check, lint, syntax)
-[group('test')]
-ansible-test: ansible-fmt-check ansible-lint ansible-syntax
+# Test all (fmt check, lint)
+[group('ansible')]
+ansible-test: ansible-fmt-check ansible-lint
 
 # --- Fmt ---
 
 # Reformat roles and playbooks with ansible-lint's fixes
-[group('fmt')]
+[group('ansible')]
 ansible-fmt:
     cd {{ ansible_dir }} && uv run ansible-lint --fix
 
 # Check roles and playbooks formatting
-[group('fmt')]
+[group('ansible')]
 ansible-fmt-check:
     cd {{ ansible_dir }} && uv run ansible-lint --tags yaml
