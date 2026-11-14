@@ -1,6 +1,6 @@
 # md.just
 
-Formats all `.md` files in the repository with
+This module formats all `.md` files in the repository with
 [mdformat](https://pypi.org/project/mdformat/), which
 [uvx](https://docs.astral.sh/uv/) runs.
 
@@ -23,7 +23,7 @@ fetch:
     curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/md/md.just -o .just/remote/md.just
 ```
 
-Then:
+Then run these recipes:
 
 ```bash
 just fetch          # Download the shared recipe file
@@ -33,15 +33,15 @@ just md-fmt-check   # Check formatting (non-zero exit on drift)
 
 ## Recipes
 
-| Recipe         | Description                                |
-| -------------- | ------------------------------------------ |
-| `md-fmt`       | Reformat repository markdown with mdformat |
-| `md-fmt-check` | Check repository markdown formatting       |
+| Recipe         | Description                              |
+| -------------- | ---------------------------------------- |
+| `md-fmt`       | Format repository markdown with mdformat |
+| `md-fmt-check` | Check the format of repository markdown  |
 
 ## Requirements
 
-Only [uv](https://docs.astral.sh/uv/). The module installs nothing into the
-consumer, and commits nothing to it:
+The module needs only [uv](https://docs.astral.sh/uv/). It installs nothing into
+the consumer, and commits nothing to it:
 
 - `uvx` runs mdformat from a cache.
 - The recipe pins the versions.
@@ -66,11 +66,10 @@ By default, the module does not format `node_modules/`, `.worktrees/`,
 (`md_site_dir`).
 
 A tool generates the files in `.claude/`, and writes them again later. If the
-module formatted them, CI and the tool would change the same files again and
-again.
+module formats them, CI and the tool change the same files again and again.
 
 **⚠️ Do not use `md.just` and `docusaurus.just` on the same files.** The two
-modules use different formatters, mdformat and prettier, and they give different
+modules use different formatters, mdformat and Prettier, and they give different
 output. Thus each module reverses the changes of the other. A repository can use
 the two modules, but on different paths. `md.just` does not format
 `md_site_dir`, `docs` by default, which `docusaurus.just` formats. If the site
@@ -100,7 +99,7 @@ use bold text for callouts.
 | `md_extra_excludes` | (empty) | Extra `--exclude` flags added to the defaults  |
 | `md_python`         | `3.13`  | Python interpreter (`--exclude` needs 3.13+)   |
 
-To change a variable, set `allow-duplicate-variables` and assign the variable
+To change a variable, set `allow-duplicate-variables`. Then assign the variable
 again:
 
 ```just
