@@ -1,13 +1,15 @@
 # AGENTS.md
 
-Test: `just test` | Fix formatting: `just ready`
+Test: `just test` | Fix the format: `just ready`
 
-Read @CONTRIBUTING.md first. It gives the prerequisites, the procedure to test a
-change against a real consumer, the recipe conventions, and the pull request
-workflow. These rules apply to agents the same as they apply to people. This
-file has only the rules that are specific to agents.
+Read @CONTRIBUTING.md first.
 
-## Running tools
+@CONTRIBUTING.md gives the prerequisites, the procedure to test a change against
+a real consumer, the recipe conventions, and the pull request workflow. These
+rules apply to agents the same as they apply to people. This file has only the
+rules that are specific to agents.
+
+## Run tools through mise
 
 Run tools through `mise`, not from your path:
 
@@ -20,21 +22,26 @@ mise exec -- just test
 `just` resolves to the version that is installed globally, which is usually
 older.
 
-The symptom is a check that fails here and passes in continuous integration, on
-a file that nobody changed. When this occurs, find which version ran before you
-accept the failure as real.
+The symptom is a check that fails here and passes in CI, on a file that nobody
+changed.
+
+If this occurs, find the version of `just` that ran. Do this before you accept
+the failure as real.
 
 ## Where the rules come from
 
-@CONTRIBUTING.md names the specification under "Before you start". If a
-convention here and the specification do not agree, the specification is
-correct. Say so. Do not follow the code.
+@CONTRIBUTING.md names the design page under "Before you start".
 
-## A shared recipe cannot be tested here
+If a convention in this repository does not agree with the design page, follow
+the design page. Report the difference. Do not follow the code.
+
+## This repository cannot test a shared recipe
 
 Nothing in this repository runs a recipe from start to end. Thus "it looks
 right" is not evidence. @CONTRIBUTING.md gives the procedure under "Making
-changes". Do the procedure, and write in the PR which consumer you used.
+changes".
+
+Do the procedure. In the pull request, name the consumer that you used.
 
 ## Repository structure
 
@@ -57,9 +64,11 @@ When you commit with Claude Code, end the message with:
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-## Task tracking
+## Design before you build
 
-**Design is done in the design documents.** Write or change the page in
-[osapi-io/specs](https://github.com/osapi-io/specs) before you build. Correct
-the page where the build shows that it is wrong. A design document in this
-repository becomes old when the code changes, and nothing finds the difference.
+Write or change the design page in
+[osapi-io/specs](https://github.com/osapi-io/specs) before you build. If the
+build shows that the page is wrong, correct the page.
+
+A design page in this repository becomes incorrect when the code changes. No
+check finds the difference.

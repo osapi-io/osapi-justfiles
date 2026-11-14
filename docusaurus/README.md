@@ -1,6 +1,7 @@
 # docusaurus.just
 
-Builds, serves, deploys, and formats a [Docusaurus](https://docusaurus.io) site.
+This module builds, serves, deploys, and formats a
+[Docusaurus](https://docusaurus.io) site.
 
 ## Usage
 
@@ -17,7 +18,7 @@ fetch:
     curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/docusaurus/docusaurus.just -o .just/remote/docusaurus.just
 ```
 
-Then:
+Then run these recipes:
 
 ```bash
 just fetch                    # Download the shared recipe file
@@ -35,13 +36,13 @@ just docs-bump 1.2.0          # Cut a versioned snapshot
 
 ## Configuration
 
-| Variable          | Default     | Purpose                    |
-| ----------------- | ----------- | -------------------------- |
-| `docusaurus_dir`  | `docs`      | Directory holding the site |
-| `docusaurus_host` | `localhost` | Development server host    |
-| `docusaurus_port` | `3001`      | Development server port    |
+| Variable          | Default     | Purpose                       |
+| ----------------- | ----------- | ----------------------------- |
+| `docusaurus_dir`  | `docs`      | Directory that holds the site |
+| `docusaurus_host` | `localhost` | Development server host       |
+| `docusaurus_port` | `3001`      | Development server port       |
 
-To change a variable, set `allow-duplicate-variables` and assign the variable
+To change a variable, set `allow-duplicate-variables`. Then assign the variable
 again:
 
 ```just
@@ -52,14 +53,14 @@ import? '.just/remote/docusaurus.just'
 docusaurus_port := "3002"
 ```
 
-## Formatting
+## Format
 
 This module formats its own directory, and the [`md`](../md/README.md) module
 does not format it. Docusaurus content has MDX and component syntax that
-mdformat cannot parse. Thus only prettier formats those files.
+mdformat cannot parse. Thus only Prettier formats those files.
 
-In a repository that uses the two modules, set `md_site_dir` to the same value.
-Then the exclusion agrees with the location of the site.
+In a repository that uses the two modules, set `md_site_dir` to the value of
+`docusaurus_dir`. Then the exclusion agrees with the location of the site.
 
 ## License
 
