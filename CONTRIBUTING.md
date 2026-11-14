@@ -80,15 +80,17 @@ again.
 
 ### Variables
 
-- Use `env("VAR", "default")` for a value that the user can change.
+- Give a value that a consumer can change a module variable, for example
+  `go_coverage_target`. A consumer sets `allow-duplicate-variables` and assigns
+  the variable again. The README of each module shows this.
 - Use a backtick expression for a value that comes from the shell, for example
   `` git_root := `git rev-parse --show-toplevel` ``.
-- **Start the name of each environment variable with `JUST_`**, for example
-  `JUST_MAIN_PACKAGE`. The `justfiles` specification makes this a requirement.
+- Do not read environment variables with `env()`. A module variable is the one
+  way to change a value, so a reader finds every setting in the justfile.
 
 An imported module shares one namespace with the justfile of the consumer. Thus
-also start the name of each module variable with the module name. If two modules
-use a general name such as `wrap`, one value replaces the other. just gives no
+start the name of each module variable with the module name. If two modules use
+a general name such as `wrap`, one value replaces the other. just gives no
 error.
 
 ### Dependencies between recipes
