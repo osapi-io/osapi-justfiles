@@ -28,25 +28,6 @@ The symptom is a check that fails here but passes in CI, on a file that nobody
 changed. If this occurs, find the version that ran. Do this before you accept
 the failure as real.
 
-## Run tools through mise
-
-Run tools through `mise`, not from your path:
-
-```bash
-mise exec -- just test
-```
-
-`mise` is active in the shell of a person and supplies the versions that
-`.mise.toml` declares. The shell of an agent has no activation. Thus a bare
-`just` resolves to the version that is installed globally, which is usually
-older.
-
-The symptom is a check that fails here and passes in CI, on a file that nobody
-changed.
-
-If this occurs, find the version of `just` that ran. Do this before you accept
-the failure as real.
-
 ## This repository cannot test a shared recipe
 
 Nothing in this repository runs a recipe from start to end. Thus "it looks
@@ -65,15 +46,6 @@ Do the procedure. In the pull request, name the consumer that you used.
 
 A consumer imports a module in one way: `import?` of the downloaded recipe file.
 The root README shows it.
-
-## Design before you build
-
-Write or change the design page in
-[osapi-io/specs](https://github.com/osapi-io/specs) before you build. If the
-build shows that the page is wrong, correct the page.
-
-A design page in this repository becomes incorrect when the code changes. No
-check finds the difference.
 
 ## Where the rules come from
 
