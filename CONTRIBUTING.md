@@ -41,16 +41,8 @@ module needs.
 ### Coding agents
 
 This repository works with any coding agent that reads `AGENTS.md`. `CLAUDE.md`
-only points to `AGENTS.md`.
-
-For [Claude Code], install this plugin from the default marketplace:
-
-```
-/plugin install commit-commands@claude-plugins-official
-```
-
-- **commit-commands.** It gives the `/commit` and `/commit-push-pr` commands.
-  They follow the commit rules of this repository.
+only points to `AGENTS.md`. Prepare your agent as its documentation tells you.
+This repository does not need a plugin or an extension.
 
 ## Making changes
 
@@ -133,9 +125,6 @@ Make all changes on a branch. Make the branch from `main`. Give it the name
 - `refactor/simplify-handler`
 - `chore/update-dependencies`
 
-If you are on `main`, the `/commit` command of Claude Code makes the branch for
-you.
-
 ## Commit messages
 
 Use [Conventional Commits] with the 50/72 rule:
@@ -186,7 +175,6 @@ vote or comment on issues, or help answer questions.
 
 Open a [Discussion] on GitHub.
 
-[claude code]: https://claude.ai/code
 [conventional commits]: https://www.conventionalcommits.org
 [discussion]: https://github.com/osapi-io/osapi-justfiles/discussions
 [just]: https://just.systems
