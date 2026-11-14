@@ -1,107 +1,110 @@
 # Contributing
 
-Contributions to osapi-justfiles are very welcome, but we ask that you read this
-document before submitting a PR. It covers everything you need: prerequisites,
-setup, the conventions recipes follow, and the pull request workflow.
+We welcome contributions to osapi-justfiles. Read this document before you send
+a PR. It gives the prerequisites, the setup, the conventions for recipes, and
+the pull request workflow.
 
 ## Before you start
 
-- Read the [Code of Conduct](CODE_OF_CONDUCT.md). It applies to every
-  interaction in this repo.
+- Read the [Code of Conduct](CODE_OF_CONDUCT.md). It applies to all
+  communication in this repository.
 
-- **Design docs.** How this repository is built is documented in
+- **Design documents.** The design of this repository is in
   [osapi-io/specs](https://github.com/osapi-io/specs) under
-  `components/osapi-justfiles/`. Read it before changing behaviour, and change
-  it when you do. A design doc kept in this repository goes stale the moment the
-  code moves past it, and nothing catches the drift.
+  `components/osapi-justfiles/`. Read it before you change the behavior. When
+  you change the behavior, change the design too. A design document in this
+  repository becomes old when the code changes, and nothing finds the
+  difference.
 
-- **Check existing work.** Is there an existing PR? Are there issues discussing
-  the change you want to make? Please make sure you consider/address these
-  discussions in your work.
+- **Examine the work that exists.** Look for a PR or an issue about the change
+  that you want to make. If you find one, use what it says in your work.
 
-- **Backwards compatibility.** Every repository in the organization fetches
-  these files from `main`, so a breaking change breaks them all at once. It is
-  much more likely that your change will be merged if it is backwards
-  compatible. If it cannot be, consider opening an issue first so the migration
-  can be discussed before you invest your time in a PR.
+- **Backwards compatibility.** All repositories in the organization download
+  these files from `main`. Thus a breaking change breaks all of them at the same
+  time. A change that is backwards compatible is much more likely to be merged.
+  If your change cannot be backwards compatible, open an issue first. Then we
+  can discuss the migration before you write a PR.
 
 ## Prerequisites
 
-- **[just].** Task runner. Install with `brew install mise` and let mise provide
-  it, or `brew install just` directly.
+- **[just].** The task runner. Install it with `brew install mise` and let mise
+  supply it. Alternatively, install it with `brew install just`.
 
-Individual modules require the tools they invoke. `md` needs [uv]; `go` needs a
-Go toolchain. Each module's README lists its own requirements.
+Each module needs the tools that it runs. `md` needs [uv]. `go` needs a Go
+toolchain. The README of each module lists what that module needs.
 
 ### Claude Code
 
-If you use [Claude Code] for development, install this plugin from the default
+If you use [Claude Code] to write changes, install this plugin from the default
 marketplace:
 
 ```
 /plugin install commit-commands@claude-plugins-official
 ```
 
-- **commit-commands.** provides `/commit` and `/commit-push-pr` slash commands
-  that follow the project's commit conventions automatically.
+- **commit-commands.** Gives the `/commit` and `/commit-push-pr` slash commands.
+  These commands follow the commit conventions of this repository.
 
-**Design happens in the design docs.** Write or change the page in
-[osapi-io/specs](https://github.com/osapi-io/specs) before building, and correct
-it where building proves it wrong. A design document kept in this repository
-goes stale the moment the code moves past it, and nothing catches the drift.
+**Design is done in the design documents.** Write or change the page in
+[osapi-io/specs](https://github.com/osapi-io/specs) before you build. Correct
+the page where the build shows that it is wrong. A design document in this
+repository becomes old when the code changes, and nothing finds the difference.
 
 ## Making changes
 
-Edit the `.just` files directly. To test a change before it is merged, point a
-consuming project's `fetch` recipe at your branch:
+Edit the `.just` files. To test a change before it is merged, change the `fetch`
+recipe of a consumer to download from your branch:
 
 ```bash
 curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/your-branch/md/md.just -o .just/remote/md.just
 ```
 
-Then run that project's recipes to verify the behavior. There is no way to test
-a shared recipe except against a real consumer.
+Then run the recipes of that consumer to make sure that the behavior is correct.
+You can test a shared recipe only against a real consumer.
 
-Note that `raw.githubusercontent.com` caches for several minutes. After merging,
-a consumer's CI can still fetch the previous version. Re-run it rather than
-assuming the change is broken.
+`raw.githubusercontent.com` keeps a cached copy for some minutes. Thus after the
+merge, the CI of a consumer can download the previous version. If this occurs,
+run the CI again. Do not think that the change is broken.
 
 ## Recipe conventions
 
 ### Style
 
-- Use a `#` comment above each recipe as its description.
-- A recipe's group is its prefix. Every recipe in a file starts with the file's
-  prefix and carries the matching `[group('prefix')]`: `go-test` is in `go`,
-  `docs-start` is in `docs`. `just --list` then shows one block per tool, and a
-  recipe's group can be read from its name.
-- Use `[private]` for helper recipes not meant to be called directly.
+- Put a `#` comment above each recipe. The comment is the description of the
+  recipe.
+- The group of a recipe is its prefix. The name of each recipe in a file starts
+  with the prefix of the file. Each recipe has the `[group('prefix')]` that
+  agrees with it: `go-test` is in `go`, and `docs-start` is in `docs`. Then
+  `just --list` shows one block for each tool, and the name of a recipe tells
+  you its group.
+- Use `[private]` for a helper recipe that a person must not call directly.
 - Use kebab-case for recipe names (`fmt-check`, `unit-cov`).
-- Use a `#!/usr/bin/env bash` shebang for multi-line shell blocks.
-- Parameters use just syntax: `recipe param:`, not shell arguments.
+- Use a `#!/usr/bin/env bash` shebang for a shell block that has more than one
+  line.
+- Write parameters in just syntax: `recipe param:`, not as shell arguments.
 
 ### Variables
 
-- Use `env("VAR", "default")` for user-configurable values.
-- Use backtick expressions for shell-derived values, e.g.
+- Use `env("VAR", "default")` for a value that the user can change.
+- Use a backtick expression for a value that comes from the shell, for example
   `` git_root := `git rev-parse --show-toplevel` ``.
-- **Prefix every environment variable with `JUST_`**, e.g. `JUST_MAIN_PACKAGE`.
-  This is a requirement of the `justfiles` specification, not a preference.
+- **Start the name of each environment variable with `JUST_`**, for example
+  `JUST_MAIN_PACKAGE`. The `justfiles` specification makes this a requirement.
 
-Modules consumed by import share one namespace with the consuming justfile, so
-prefix their variables with the module name as well. A generic name like `wrap`
-silently overwrites any other `wrap` in scope.
+An imported module shares one namespace with the justfile of the consumer. Thus
+also start the name of each module variable with the module name. A general name
+such as `wrap` replaces each other `wrap` in scope, and gives no error.
 
 ### Dependencies between recipes
 
-- Use just dependency syntax: `recipe: dep1 dep2`.
-- A module's `test` recipe should chain all of its checks.
-- Keep recipes independently runnable where possible.
+- Use the just syntax for dependencies: `recipe: dep1 dep2`.
+- The `test` recipe of a module must run all of its checks.
+- Where possible, make each recipe so that it can run alone.
 
 ### License header
 
-All `.just` files must include the MIT license header at the top, as `#`
-comments, with year 2026.
+Each `.just` file must start with the MIT license header, as `#` comments, with
+the year 2026.
 
 ## Before committing
 
@@ -109,62 +112,62 @@ comments, with year 2026.
 just test
 ```
 
-This checks that every justfile in the repository is canonically formatted,
-which is what CI runs. `just ready` fixes formatting.
+This command makes sure that each justfile in the repository has the canonical
+format. CI runs the same check. `just ready` corrects the format.
 
 ## Branching
 
-All changes should be developed on feature branches. Create a branch from `main`
-using the naming convention `type/short-description`, where `type` matches the
-[Conventional Commits] type:
+Make all changes on a feature branch. Create the branch from `main`. Use the
+name `type/short-description`, where `type` is the [Conventional Commits] type:
 
 - `feat/add-docs-recipe`
 - `fix/coverage-path`
 - `chore/update-deps`
 
-When using Claude Code's `/commit` command, a branch will be created
-automatically if you are on `main`.
+If you are on `main` when you use the `/commit` command of Claude Code, the
+command creates a branch.
 
 ## Commit messages
 
 Follow [Conventional Commits] with the 50/72 rule:
 
-- **Subject line**: max 50 characters, imperative mood, capitalized, no period
-- **Body**: wrap at 72 characters, separated from subject by a blank line
-- **Format**: `type(scope): description`
-- **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
-- Summarize the "what" and "why", not the "how"
+- The subject line has a maximum of 50 characters, the imperative mood, a
+  capital letter at the start, and no period.
+- The body wraps at 72 characters. A blank line separates it from the subject.
+- The format is `type(scope): description`.
+- The types are `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, and
+  `chore`.
+- Say what changed and why. Do not say how.
 
-Try to write meaningful commit messages and avoid having too many commits on a
-PR. Most PRs should likely have a single commit (although for bigger PRs it may
-be reasonable to split it in a few). Git squash and rebase is your friend!
+Write commit messages that give useful information. Do not put too many commits
+on a PR. Usually a PR has one commit. A large PR can have some commits. Use git
+squash and rebase to decrease the number of commits.
 
 ## Submitting a PR
 
-- **Describe your changes.** Say what changed and why. A reviewer should not
-  have to read the diff to learn the reason for it.
-- **Issue/PR links.** Link any previous work such as related issues or PRs.
-  Please describe how your changes differ to/extend this work.
-- **Name the consumers you tested against.** a shared recipe that was never run
-  by a real project has not been tested.
-- **Draft PRs.** If your changes are incomplete, but you would like to discuss
-  them, open the PR as a draft and add a comment to start a discussion. Using
-  comments rather than the PR description allows the description to be updated
-  later while preserving any discussions.
+- **Describe your changes.** Say what changed and why. A reviewer must not have
+  to read the diff to find the reason.
+- **Issue and PR links.** Link to the previous work, for example related issues
+  or PRs. Say how your changes are different from that work or add to it.
+- **Name the consumers that you used for the test.** If no real consumer ran a
+  shared recipe, the recipe is not tested.
+- **Draft PRs.** If your changes are not complete and you want to discuss them,
+  open the PR as a draft. Then add a comment to start the discussion. Use
+  comments, not the PR description, for the discussion. Then you can change the
+  description later, and the discussion stays.
 
 ## AI usage
 
-All contributions are subject to the [AI Usage Policy](AI_POLICY.md). Disclose
-the tool you used, and make sure you can explain what your change does without
-the aid of AI tools.
+The [AI Usage Policy](AI_POLICY.md) applies to all contributions. Say which tool
+you used. Make sure that you can explain what your change does without help from
+AI tools.
 
 ## FAQ
 
 > I want to contribute, where do I start?
 
-All kinds of contributions are welcome, whether it's a typo fix or a shiny new
-recipe. You can also contribute by upvoting/commenting on issues or helping to
-answer questions.
+We welcome all types of contributions, for example a typo fix or a new recipe.
+You can also vote on issues, comment on issues, or help to answer questions.
 
 > I'm stuck, where can I get help?
 

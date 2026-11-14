@@ -1,17 +1,18 @@
 # md.just
 
-Formats every `.md` file in the repository with
-[mdformat](https://pypi.org/project/mdformat/), run via
-[uvx](https://docs.astral.sh/uv/).
+Formats all `.md` files in the repository with
+[mdformat](https://pypi.org/project/mdformat/), which
+[uvx](https://docs.astral.sh/uv/) runs.
 
-Use this for repos that keep documentation at the root. Use
-[`docusaurus.just`](../docusaurus/README.md) for Docusaurus sites under `docs/`.
+Use this module for a repository that keeps its documentation at the root. Use
+[`docusaurus.just`](../docusaurus/README.md) for a Docusaurus site under
+`docs/`.
 
 ## Usage
 
-Unlike the other modules, `md.just` is consumed with `import?` rather than
-`mod?`. Its recipes are flat and prefixed, so it needs no `.mod.just` shim and
-runs from the importing justfile's directory:
+A consumer imports `md.just` with `import?`, not with `mod?`. Its recipes are
+flat, and their names have a prefix. Thus it needs no `.mod.just` shim, and it
+runs from the directory of the justfile that imports it:
 
 ```just
 import? '.just/remote/md.just'
@@ -39,33 +40,39 @@ just md-fmt-check   # Check formatting (non-zero exit on drift)
 
 ## Requirements
 
-[uv](https://docs.astral.sh/uv/) only. Nothing is installed into or committed to
-the consuming repo. `uvx` runs mdformat from a cache, versions are pinned in the
-recipe, and formatting options are passed on the command line. There is no
-`package.json`, lockfile, or config file to maintain.
+Only [uv](https://docs.astral.sh/uv/). The module installs nothing into the
+consumer, and commits nothing to it:
 
-The `mdformat-gfm` plugin is not optional. Without it mdformat is
-CommonMark-only and will silently mangle GitHub-flavored tables into prose.
+- `uvx` runs mdformat from a cache.
+- The recipe pins the versions.
+- The recipe gives the format options on the command line.
 
-The recipes pin the interpreter to Python 3.13 via `uvx --python`. mdformat's
-`--exclude` flag requires 3.13 or newer; on an older interpreter the flag does
-not exist and mdformat exits 2 with `unrecognized arguments`. Pinning makes the
-behavior identical on a laptop and in CI, and uv downloads the interpreter if it
-is missing.
+Thus there is no `package.json`, lockfile, or configuration file to maintain.
+
+The `mdformat-gfm` plugin is necessary. Without it, mdformat knows only
+CommonMark. It then changes GitHub-flavored tables into prose, and gives no
+error.
+
+The recipes pin the interpreter to Python 3.13 with `uvx --python`. The
+`--exclude` flag of mdformat needs Python 3.13 or newer. On an older
+interpreter, the flag does not exist, and mdformat exits 2 with
+`unrecognized arguments`. The pin gives the same behavior on a laptop and in CI.
+If the interpreter is not there, uv downloads it.
 
 ## Exclusions
 
-Excluded by default: `node_modules/`, `.worktrees/`, `.claude/`, and `.just/`.
+By default, the module does not format `node_modules/`, `.worktrees/`,
+`.claude/`, and `.just/`.
 
-`.claude/` is skipped because those files are generated, and their generator
-rewrites them, and reformatting them creates a loop where CI and the generator
-fight each other.
+A tool generates the files in `.claude/`, and writes them again later. If the
+module formatted them, CI and the tool would change the same files again and
+again.
 
-**⚠️ Do not point `md.just` and `docusaurus.just` at the same files.** They use
-different formatters (mdformat vs prettier) and produce different output, so
-each would undo the other. A repo may use both, but on disjoint paths. Since
-`md.just` scans the whole repo, a repo with a Docusaurus site under `docs/` must
-exclude it:
+**⚠️ Do not use `md.just` and `docusaurus.just` on the same files.** The two
+modules use different formatters, mdformat and prettier, and they give different
+output. Thus each module reverses the changes of the other. A repository can use
+the two modules, but on different paths. `md.just` scans the full repository.
+Thus a repository with a Docusaurus site under `docs/` must exclude it:
 
 ```just
 set allow-duplicate-variables := true
@@ -75,9 +82,9 @@ import? '.just/remote/md.just'
 md_extra_excludes := "--exclude 'docs/**'"
 ```
 
-Note that mdformat does not understand GitHub alert syntax (`> [!WARNING]`) and
-will reflow it into a plain blockquote. Use bold text for callouts in repos
-formatted by this module.
+mdformat does not know the GitHub alert syntax (`> [!WARNING]`). It changes an
+alert into a plain blockquote. Thus in a repository that this module formats,
+use bold text for callouts.
 
 ## Configuration
 
@@ -89,7 +96,8 @@ formatted by this module.
 | `md_extra_excludes` | (empty) | Extra `--exclude` flags added to the defaults |
 | `md_python`         | `3.13`  | Python interpreter (`--exclude` needs 3.13+)  |
 
-Override any of them by setting `allow-duplicate-variables` and assigning again:
+To change a variable, set `allow-duplicate-variables` and assign the variable
+again:
 
 ```just
 set allow-duplicate-variables := true

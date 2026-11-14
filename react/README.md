@@ -6,8 +6,8 @@ Builds, lints, formats, and serves a React application with
 
 ## Usage
 
-`react.just` is consumed with `import?` rather than `mod?`. Its recipes are flat
-and prefixed, so it needs no `.mod.just` shim.
+A consumer imports `react.just` with `import?`, not with `mod?`. Its recipes are
+flat, and their names have a prefix. Thus it needs no `.mod.just` shim.
 
 ```just
 import? '.just/remote/react.just'
@@ -18,8 +18,8 @@ fetch:
     curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/react/react.just -o .just/remote/react.just
 ```
 
-`react_dir` defaults to `.`, the repository root. Override it when the
-application lives elsewhere. See Configuration below.
+The default of `react_dir` is `.`, the repository root. If the application is in
+a different directory, change `react_dir`. Refer to Configuration below.
 
 Then:
 
@@ -42,7 +42,8 @@ just react-generate     # Regenerate the TypeScript SDK with orval
 | `react_dir`         | `.`                     | Directory holding the React app |
 | `react_fmt_pattern` | `src/**/*.{ts,tsx,css}` | Glob Prettier formats           |
 
-Override by setting `allow-duplicate-variables` and assigning again:
+To change a variable, set `allow-duplicate-variables` and assign the variable
+again:
 
 ```just
 set allow-duplicate-variables := true
