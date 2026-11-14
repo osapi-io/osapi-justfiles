@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-Five modules of just recipes, fetched over HTTP and imported optionally, so
+Six modules of just recipes, fetched over HTTP and imported optionally, so
 every repository in the organization runs the same build steps without
 vendoring them.
 </p>
@@ -116,6 +116,7 @@ Each module lives in its own directory and documents itself:
 
 | Module       | Description                                       | Docs                                         |
 | ------------ | ------------------------------------------------- | -------------------------------------------- |
+| `ansible`    | Ansible run, lint and format, through uv          | [ansible/README.md](ansible/README.md)       |
 | `docusaurus` | Docusaurus site build, serve, deploy, formatting  | [docusaurus/README.md](docusaurus/README.md) |
 | `go`         | Go build, test, coverage gate, format, lint       | [go/README.md](go/README.md)                 |
 | `md`         | Repository markdown formatting (mdformat via uvx) | [md/README.md](md/README.md)                 |
