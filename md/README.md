@@ -71,10 +71,10 @@ module formats them, CI and the tool change the same files again and again.
 **⚠️ Do not use `md.just` and `docusaurus.just` on the same files.** The two
 modules use different formatters, mdformat and Prettier, and they give different
 output. Thus each module reverses the changes of the other. A repository can use
-the two modules, but on different paths. `md.just` does not format
-`md_site_dir`, `docs` by default, which `docusaurus.just` formats. If the site
-is in a different directory, set `md_site_dir` to that directory. If the
-repository has no site, set `md_site_dir` to `""`:
+the two modules, but on different paths. `md.just` does not format the directory
+in `md_site_dir`, `docs` by default. `docusaurus.just` formats that directory.
+If the site is in a different directory, set `md_site_dir` to that directory. If
+the repository has no site, set `md_site_dir` to `""`:
 
 ```just
 set allow-duplicate-variables := true

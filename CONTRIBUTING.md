@@ -80,7 +80,7 @@ again.
 
 ### Variables
 
-- Give a value that a consumer can change a module variable, for example
+- Put each value that a consumer can change in a module variable, for example
   `go_coverage_target`. A consumer sets `allow-duplicate-variables` and assigns
   the variable again. The README of each module shows this.
 - Use a backtick expression for a value that comes from the shell, for example
@@ -103,6 +103,20 @@ error.
 
 Each `.just` file must start with the MIT license header, as `#` comments, with
 the year 2026.
+
+### Documentation
+
+[mdformat] formats the markdown files, through `uvx`. CI makes sure that the
+format is correct.
+
+```bash
+just md-fmt-check   # Check formatting
+just md-fmt         # Auto-fix formatting
+```
+
+Write each page in Simplified Technical English, as
+[the osapi-io constitution](https://github.com/osapi-io/specs/blob/main/CONSTITUTION.md)
+requires.
 
 ## Before you commit
 
