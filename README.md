@@ -26,7 +26,7 @@ organization downloads them over HTTP and imports them as optional. Thus all
 repositories run the same build steps. No repository keeps a copy.
 </p>
 
-## Usage
+## 🚀 Usage
 
 A consumer imports the shared recipes with `import?`. Each module is one recipe
 file. The consumer downloads it from this repository into `.just/remote/`.
@@ -99,7 +99,7 @@ it. `go-mod-bump` updates these Go modules. `go-mod-check` fails when a
 committed Go module is not tidy. `go-test` depends on `go-mod-check`.
 [go/README.md](go/README.md) has the details.
 
-## Documentation
+## 📚 Documentation
 
 Each module is in its own directory, with a README that describes it:
 
@@ -112,11 +112,11 @@ Each module is in its own directory, with a README that describes it:
 | `just`       | Justfile format                                          | [just/README.md](just/README.md)             |
 | `react`      | React application build, lint, format, SDK codegen (Bun) | [react/README.md](react/README.md)           |
 
-## Contributing
+## 🤝 Contributing
 
 The [Contributing](CONTRIBUTING.md) guide gives the prerequisites, the recipe
 conventions, and the pull request workflow.
 
-## License
+## 📄 License
 
 The [MIT](LICENSE) License.
