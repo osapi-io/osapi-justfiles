@@ -104,6 +104,20 @@ error.
 Each `.just` file must start with the MIT license header, as `#` comments, with
 the year 2026.
 
+### Documentation
+
+[mdformat] formats the markdown files, through `uvx`. CI makes sure that the
+format is correct.
+
+```bash
+just md-fmt-check   # Check formatting
+just md-fmt         # Auto-fix formatting
+```
+
+Write each page in Simplified Technical English, as
+[the osapi-io constitution](https://github.com/osapi-io/specs/blob/main/CONSTITUTION.md)
+requires.
+
 ## Before you commit
 
 Run `just ready` before you commit. It makes sure that the format of each
@@ -115,10 +129,6 @@ just ready
 
 `just test` checks the same format and changes no file. CI runs the justfile
 format check.
-
-Write each page in Simplified Technical English, as
-[the osapi-io constitution](https://github.com/osapi-io/specs/blob/main/CONSTITUTION.md)
-requires.
 
 ## Branches
 
