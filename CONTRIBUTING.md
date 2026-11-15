@@ -80,7 +80,7 @@ again.
 
 ### Variables
 
-- Give a value that a consumer can change a module variable, for example
+- Put each value that a consumer can change in a module variable, for example
   `go_coverage_target`. A consumer sets `allow-duplicate-variables` and assigns
   the variable again. The README of each module shows this.
 - Use a backtick expression for a value that comes from the shell, for example
