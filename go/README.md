@@ -1,9 +1,15 @@
 # go.just
 
 This module builds, tests, formats and lints a Go project, and measures its
-coverage. It uses [gofumpt](https://github.com/mvdan/gofumpt),
-[golines](https://github.com/segmentio/golines),
-[golangci-lint](https://golangci-lint.run), and `go test`.
+coverage. It uses [golangci-lint](https://golangci-lint.run) and `go test`.
+
+golangci-lint also formats. `go-fmt` and `go-fmt-check` run `golangci-lint fmt`
+with the formatters that the `.golangci.yml` of the repository enables, such as
+gofumpt, golines and goimports. Thus `go-fmt` writes, `go-fmt-check` checks and
+`go-vet` reports the same format, from one version of each tool. The repository
+records only golangci-lint in its `tool (...)` block. golangci-lint skips
+generated files and hidden directories, such as `.worktrees`. To skip other
+paths, add them to `formatters.exclusions.paths` in `.golangci.yml`.
 
 ## Usage
 
@@ -29,7 +35,7 @@ just go-unit               # Unit tests only
 just go-unit-cov           # Generate a coverage profile
 just go-unit-cov-check     # Fail below the coverage target
 just go-unit-cov-gaps      # Open a heatmap of files under 100%
-just go-fmt                # Reformat with gofumpt and golines
+just go-fmt                # Reformat with the formatters of .golangci.yml
 just go-fmt-check          # Check formatting
 just go-vet                # Run golangci-lint
 just go-generate           # Run go generate
@@ -69,7 +75,6 @@ If there is no `examples/` directory, the two recipes do nothing.
 | `go_coverage_target` | `100`       | Minimum total coverage; below this fails |
 | `go_coverage_dir`    | `.coverage` | Where the recipes write the profile      |
 | `go_main_package`    | `main.go`   | Entry point for builds                   |
-| `go_fmt_excludes`    | (empty)     | Paths that gofumpt and golines skip      |
 
 ### Change a default
 

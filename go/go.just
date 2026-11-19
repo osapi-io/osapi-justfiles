@@ -32,7 +32,6 @@ go_coverage_dir := ".coverage"
 # overrides this by setting `allow-duplicate-variables` and assigning it again.
 
 go_coverage_target := "100"
-go_fmt_excludes := ""
 go_os_tags := if os() == "linux" { `if grep -iq 'ubuntu' /etc/os-release 2>/dev/null; then echo '-tags=ubuntu'; fi` } else { "" }
 
 # --- Private dependency recipes ---
@@ -196,29 +195,21 @@ go-test: _go-mod-download go-mod-check go-fmt-check go-vet go-unit-cov-check
 
 # --- Fmt ---
 
-# The paths of the gofumpt and golines binaries that go tool builds and
-# caches. golines starts its base formatter once for each file. A start through
-# go tool checks the build first, about 0.18 s, against 0.005 s for the binary.
-# On osapi's 1,500 files that is four minutes against twenty seconds.
-_go_fmt_tools := 'gofumpt=$(go tool -n mvdan.cc/gofumpt); golines=$(go tool -n github.com/segmentio/golines)'
+# golangci-lint formats, with the formatters that the .golangci.yml of the
+# repository enables, such as gofumpt, golines and goimports. Thus the format
+# that go-fmt writes, go-fmt-check checks, and go-vet reports is one format,
+# from one version of each tool. golangci-lint skips generated files and
+# hidden directories, such as .worktrees.
 
-# Reformat Go files with gofumpt + golines
+# Reformat Go files with the formatters of .golangci.yml
 [group('go')]
 go-fmt: _go-fmt-deps
-    #!/usr/bin/env bash
-    set -euo pipefail
-    {{ _go_fmt_tools }}
-    find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs "$gofumpt" -l -w
-    find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs "$golines" --base-formatter="$gofumpt" -w
+    go tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint fmt --config {{ go_git_root }}/.golangci.yml
 
 # Check Go file formatting
 [group('go')]
 go-fmt-check: _go-fmt-deps
-    #!/usr/bin/env bash
-    set -euo pipefail
-    {{ _go_fmt_tools }}
-    test -z "$(find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs "$gofumpt" -d -e | tee /dev/stderr)"
-    test -z "$(find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs "$golines" --dry-run --base-formatter="$gofumpt" -l | tee /dev/stderr)"
+    go tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint fmt --diff --config {{ go_git_root }}/.golangci.yml
 
 # --- Codegen ---
 
