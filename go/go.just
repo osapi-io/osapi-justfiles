@@ -196,17 +196,29 @@ go-test: _go-mod-download go-mod-check go-fmt-check go-vet go-unit-cov-check
 
 # --- Fmt ---
 
+# The paths of the gofumpt and golines binaries that go tool builds and
+# caches. golines starts its base formatter once for each file. A start through
+# go tool checks the build first, about 0.18 s, against 0.005 s for the binary.
+# On osapi's 1,500 files that is four minutes against twenty seconds.
+_go_fmt_tools := 'gofumpt=$(go tool -n mvdan.cc/gofumpt); golines=$(go tool -n github.com/segmentio/golines)'
+
 # Reformat Go files with gofumpt + golines
 [group('go')]
 go-fmt: _go-fmt-deps
-    find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs go tool mvdan.cc/gofumpt -l -w
-    find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs go tool github.com/segmentio/golines --base-formatter="go tool mvdan.cc/gofumpt" -w
+    #!/usr/bin/env bash
+    set -euo pipefail
+    {{ _go_fmt_tools }}
+    find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs "$gofumpt" -l -w
+    find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs "$golines" --base-formatter="$gofumpt" -w
 
 # Check Go file formatting
 [group('go')]
 go-fmt-check: _go-fmt-deps
-    test -z "$(find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs go tool mvdan.cc/gofumpt -d -e | tee /dev/stderr)"
-    test -z "$(find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs go tool github.com/segmentio/golines --dry-run --base-formatter="go tool mvdan.cc/gofumpt" -l | tee /dev/stderr)"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    {{ _go_fmt_tools }}
+    test -z "$(find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs "$gofumpt" -d -e | tee /dev/stderr)"
+    test -z "$(find . -type f -name '*.go' ! -name '*.gen.go' ! -name '*.pb.go' ! -path './.worktrees/*' ! -path './.claude/*' ! -path '*/node_modules/*' {{ go_fmt_excludes }} | xargs "$golines" --dry-run --base-formatter="$gofumpt" -l | tee /dev/stderr)"
 
 # --- Codegen ---
 
