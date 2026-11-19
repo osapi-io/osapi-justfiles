@@ -258,16 +258,35 @@ go-unit-plan:
                 print "]}"
             }'
 
-# Run the unit tests of the packages of one shard, with race and coverage
+# Run the unit tests of one shard, and fail below go_coverage_target
+#
+# The profile is filtered through .coverignore, as go-cover-merge filters the
+# joined one. With a target of 100, the shard's check gives the answer of the
+# joined profile: the total is 100% only when each package is. With a lower
+# target it does not, and go-cover-merge is the gate. A shard whose packages
+# are each in .coverignore has nothing to count, and passes.
 [group('go')]
 go-unit-shard shard packages: _go-cov-deps
+    #!/usr/bin/env bash
+    set -euo pipefail
     mkdir -p {{ go_coverage_dir }}
-    go test {{ go_os_tags }} -race -coverprofile={{ go_coverage_dir }}/shard-{{ shard }}.out {{ packages }}
+    out={{ go_coverage_dir }}/shard-{{ shard }}.out
+    go test {{ go_os_tags }} -race -coverprofile="$out" {{ packages }}
+    grep -v -f .coverignore "$out" > "$out.tmp" && mv "$out.tmp" "$out"
+    if [ "$(wc -l < "$out")" -le 1 ]; then
+        echo "shard {{ shard }}: nothing to count"
+        exit 0
+    fi
+    total=$(go tool cover -func="$out" | awk '$1=="total:"{print $NF}' | tr -d '%')
+    awk -v t="$total" -v g="{{ go_coverage_target }}" 'BEGIN{exit !(t+0 < g+0)}' \
+      && { go tool cover -func="$out" | grep -v '100.0%$' >&2; echo "shard {{ shard }}: coverage ${total}% is below target {{ go_coverage_target }}%" >&2; exit 1; } \
+      || echo "shard {{ shard }}: coverage ${total}% meets target {{ go_coverage_target }}%"
 
 # Join the coverage of the shards, and fail below go_coverage_target
 #
 # It writes the profile that go-unit-cov writes for one run: filtered through
-# .coverignore, at {{ go_coverage_dir }}/cover.out.
+# .coverignore, at {{ go_coverage_dir }}/cover.out. Each shard already filtered
+# its profile; a second filter changes nothing.
 [group('go')]
 go-cover-merge:
     #!/usr/bin/env bash
