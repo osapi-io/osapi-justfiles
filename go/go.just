@@ -197,10 +197,9 @@ go-test: _go-mod-download go-mod-check go-fmt-check go-vet go-unit-cov-check
 # --- Fmt ---
 
 # The paths of the gofumpt and golines binaries that go tool builds and
-# caches. golines starts its base formatter once for each file, and a start
-# through go tool checks the build first: about 1.2 s a file, against a few
-# milliseconds for the binary. On osapi's 1,500 files that is four minutes
-# against twenty seconds.
+# caches. golines starts its base formatter once for each file. A start through
+# go tool checks the build first, about 0.18 s, against 0.005 s for the binary.
+# On osapi's 1,500 files that is four minutes against twenty seconds.
 _go_fmt_tools := 'gofumpt=$(go tool -n mvdan.cc/gofumpt); golines=$(go tool -n github.com/segmentio/golines)'
 
 # Reformat Go files with gofumpt + golines
