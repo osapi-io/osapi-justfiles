@@ -32,6 +32,20 @@ go_coverage_dir := ".coverage"
 # overrides this by setting `allow-duplicate-variables` and assigning it again.
 
 go_coverage_target := "100"
+# The checks of `go-test`, in two lists. `go-ci-checks` gives CI the same
+# lists: the quick checks share one job, and each slow check is a job. A
+# consumer adds its own checks by assigning the lists again, as it does
+# `go_coverage_target`. The unit tests are not in the lists: `go-test` runs
+# them in one `go-unit-cov-check`, and CI runs them in shards.
+
+go_quick_checks := "go-mod-check"
+go_slow_checks := "go-fmt-check go-vet"
+
+# `go-unit-plan` makes one shard for each `go_shard_weight` lines of test code,
+# up to `go_shard_max` shards.
+
+go_shard_weight := "20000"
+go_shard_max := "10"
 go_os_tags := if os() == "linux" { `if grep -iq 'ubuntu' /etc/os-release 2>/dev/null; then echo '-tags=ubuntu'; fi` } else { "" }
 
 # --- Private dependency recipes ---
@@ -191,7 +205,81 @@ go-unit-cov-map: go-unit-cov
 
 # Test all (mod check, fmt check, vet, coverage)
 [group('go')]
-go-test: _go-mod-download go-mod-check go-fmt-check go-vet go-unit-cov-check
+go-test: _go-mod-download
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for check in {{ go_quick_checks }} {{ go_slow_checks }}; do just "$check"; done
+    just go-unit-cov-check
+
+# --- CI ---
+
+# Print the checks of go-test as the JSON matrix of the CI check jobs
+#
+# Each entry is one job: the quick checks together, then each slow check.
+[group('go')]
+go-ci-checks:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    {
+        echo "{{ go_quick_checks }}"
+        for check in {{ go_slow_checks }}; do echo "$check"; done
+    } | awk 'BEGIN { printf "{\"check\":[" } { printf "%s\"%s\"", (NR > 1 ? "," : ""), $0 } END { print "]}" }'
+
+# Plan the shards of the unit tests, as the JSON matrix of the CI unit jobs
+#
+# Each package weighs its lines of test code, and one more, so a package with
+# no tests still runs for its coverage. Each package goes to the lightest
+# shard so far, the heaviest package first. A new package needs no change.
+# One package is the smallest part of a shard.
+[group('go')]
+go-unit-plan:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    go list -e -f '{{{{.Dir}} {{{{.ImportPath}}' ./... | grep -v /node_modules/ |
+        while read -r dir pkg; do
+            lines=$(cat "$dir"/*_test.go 2>/dev/null | wc -l || true)
+            echo "$((lines + 1)) $pkg"
+        done |
+        sort -rn |
+        awk -v w={{ go_shard_weight }} -v max={{ go_shard_max }} '
+            { weight[NR] = $1; pkg[NR] = $2; total += $1 }
+            END {
+                n = int((total + w - 1) / w); if (n < 1) n = 1; if (n > max) n = max
+                for (i = 1; i <= NR; i++) {
+                    best = 0
+                    for (s = 1; s < n; s++) if (load[s] < load[best]) best = s
+                    load[best] += weight[i]; list[best] = list[best] " " pkg[i]
+                }
+                printf "{\"include\":["
+                for (s = 0; s < n; s++) {
+                    sub(/^ /, "", list[s])
+                    printf "%s{\"shard\":%d,\"packages\":\"%s\"}", (s ? "," : ""), s, list[s]
+                }
+                print "]}"
+            }'
+
+# Run the unit tests of the packages of one shard, with race and coverage
+[group('go')]
+go-unit-shard shard packages: _go-cov-deps
+    mkdir -p {{ go_coverage_dir }}
+    go test {{ go_os_tags }} -race -coverprofile={{ go_coverage_dir }}/shard-{{ shard }}.out {{ packages }}
+
+# Join the coverage of the shards, and fail below go_coverage_target
+#
+# It writes the profile that go-unit-cov writes for one run: filtered through
+# .coverignore, at {{ go_coverage_dir }}/cover.out.
+[group('go')]
+go-cover-merge:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    {
+        echo "mode: atomic"
+        for f in {{ go_coverage_dir }}/shard-*.out; do tail -n +2 "$f"; done
+    } | grep -v -f .coverignore > {{ go_coverage_dir }}/cover.out
+    total=$(go tool cover -func={{ go_coverage_dir }}/cover.out | awk '$1=="total:"{print $NF}' | tr -d '%')
+    awk -v t="$total" -v g="{{ go_coverage_target }}" 'BEGIN{exit !(t+0 < g+0)}' \
+      && { go tool cover -func={{ go_coverage_dir }}/cover.out | grep -v '100.0%$' >&2; echo "coverage ${total}% is below target {{ go_coverage_target }}%" >&2; exit 1; } \
+      || echo "coverage ${total}% meets target {{ go_coverage_target }}%"
 
 # --- Fmt ---
 
