@@ -79,26 +79,26 @@ coverage gate. CI runs the same checks in parallel jobs:
 
 - `go-ci-checks` prints the lists as a job matrix. The quick checks share one
   job, and each slow check is a job.
-- `go-unit-plan` divides the packages into shards. It weighs each package by
-  its lines of test code, and gives each package to the lightest shard, the
-  heaviest first.
-- `go-unit-shard` runs one shard with the race detector, and
-  `go-cover-merge` joins the profiles and fails below the target.
+- `go-unit-plan` divides the packages into shards. It weighs each package by its
+  lines of test code, and gives each package to the lightest shard, the heaviest
+  first.
+- `go-unit-shard` runs one shard with the race detector, and `go-cover-merge`
+  joins the profiles and fails below the target.
 
 Thus a check that a consumer adds to a list runs on a laptop and in CI, and a
 new package goes into a shard, with no change to the workflow.
 
 ## Configuration
 
-| Variable             | Default     | Purpose                                  |
-| -------------------- | ----------- | ---------------------------------------- |
-| `go_coverage_target` | `100`       | Minimum total coverage; below this fails |
-| `go_coverage_dir`    | `.coverage` | Where the recipes write the profile      |
-| `go_main_package`    | `main.go`   | Entry point for builds                   |
-| `go_quick_checks`    | `go-mod-check` | The checks that share one CI job     |
-| `go_slow_checks`     | `go-fmt-check go-vet` | The checks that each get a CI job |
-| `go_shard_weight`    | `20000`     | Lines of test code for each unit test shard |
-| `go_shard_max`       | `10`        | The most unit test shards                |
+| Variable             | Default               | Purpose                                     |
+| -------------------- | --------------------- | ------------------------------------------- |
+| `go_coverage_target` | `100`                 | Minimum total coverage; below this fails    |
+| `go_coverage_dir`    | `.coverage`           | Where the recipes write the profile         |
+| `go_main_package`    | `main.go`             | Entry point for builds                      |
+| `go_quick_checks`    | `go-mod-check`        | The checks that share one CI job            |
+| `go_slow_checks`     | `go-fmt-check go-vet` | The checks that each get a CI job           |
+| `go_shard_weight`    | `20000`               | Lines of test code for each unit test shard |
+| `go_shard_max`       | `10`                  | The most unit test shards                   |
 
 ### Change a default
 
