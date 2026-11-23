@@ -65,8 +65,14 @@ By default, the module does not format `node_modules/`, `.worktrees/`,
 `.claude/`, `.just/`, and the Docusaurus site directory, `docs/`
 (`md_site_dir`).
 
-A tool generates the files in `.claude/`, and writes them again later. If the
-module formats them, CI and the tool change the same files again and again.
+A tool can generate the files in `.claude/`, and write them again later. If the
+module formats them, CI and the tool change the same files again and again. In a
+repository whose `.claude/` files are written by hand, such as the skills of
+specs, set `md_agent_exclude` to `""` so that the module formats them too.
+
+The module uses the mdformat-frontmatter plugin. It keeps the YAML header of a
+file, such as the header of a `SKILL.md`. Without it, mdformat makes the header
+into a heading.
 
 **⚠️ Do not use `md.just` and `docusaurus.just` on the same files.** The two
 modules use different formatters, mdformat and Prettier, and they give different
@@ -90,14 +96,16 @@ use bold text for callouts.
 
 ## Configuration
 
-| Variable            | Default | Description                                    |
-| ------------------- | ------- | ---------------------------------------------- |
-| `md_version`        | `1.0.0` | mdformat version                               |
-| `md_gfm_version`    | `1.0.0` | mdformat-gfm plugin version                    |
-| `md_wrap`           | `80`    | Line wrap width                                |
-| `md_site_dir`       | `docs`  | Site directory that the module does not format |
-| `md_extra_excludes` | (empty) | Extra `--exclude` flags added to the defaults  |
-| `md_python`         | `3.13`  | Python interpreter (`--exclude` needs 3.13+)   |
+| Variable                 | Default                     | Description                                    |
+| ------------------------ | --------------------------- | ---------------------------------------------- |
+| `md_version`             | `1.0.0`                     | mdformat version                               |
+| `md_gfm_version`         | `1.0.0`                     | mdformat-gfm plugin version                    |
+| `md_frontmatter_version` | `2.2.0`                     | mdformat-frontmatter plugin version            |
+| `md_agent_exclude`       | `--exclude '**/.claude/**'` | Set to `""` to format `.claude/`               |
+| `md_wrap`                | `80`                        | Line wrap width                                |
+| `md_site_dir`            | `docs`                      | Site directory that the module does not format |
+| `md_extra_excludes`      | (empty)                     | Extra `--exclude` flags added to the defaults  |
+| `md_python`              | `3.13`                      | Python interpreter (`--exclude` needs 3.13+)   |
 
 To change a variable, set `allow-duplicate-variables`. Then assign the variable
 again:
