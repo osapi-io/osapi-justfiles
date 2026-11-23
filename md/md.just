@@ -22,10 +22,12 @@
 #
 # Formats every .md file in the repository via mdformat, run with uvx. The gfm
 # plugin is required — without it mdformat is CommonMark-only and will mangle
-# GitHub-flavored tables.
+# GitHub-flavored tables. The frontmatter plugin keeps a YAML header, such as
+# the one of a SKILL.md: without it mdformat makes the header a heading.
 
 md_version := "1.0.0"
 md_gfm_version := "1.0.0"
+md_frontmatter_version := "2.2.0"
 md_wrap := "80"
 
 # mdformat's --exclude requires Python 3.13+. Without pinning, uvx resolves
@@ -35,13 +37,16 @@ md_wrap := "80"
 
 md_python := "3.13"
 
-# Excluded: .claude/ holds generated agent files that their generator rewrites.
+# Excluded by default: .claude/ can hold agent files that a generator rewrites.
+# A repository whose .claude/ is written by hand sets md_agent_exclude := "" so
+# that md formats it too.
+md_agent_exclude := "--exclude '**/.claude/**'"
 
 # The Docusaurus site directory, excluded because that content holds MDX and
 # component syntax mdformat cannot parse. The docusaurus module owns and formats
 # it. Set to "" in a repository that publishes no site.
 md_site_dir := "docs"
-md_excludes := "--exclude '**/.claude/**' --exclude '**/node_modules/**' --exclude '**/.worktrees/**' --exclude '**/.just/**'"
+md_excludes := md_agent_exclude + " --exclude '**/node_modules/**' --exclude '**/.worktrees/**' --exclude '**/.just/**'"
 md_site_exclude := if md_site_dir == "" { "" } else { "--exclude '" + md_site_dir + "/**'" }
 md_extra_excludes := ""
 
@@ -52,9 +57,9 @@ md_extra_excludes := ""
 # Reformat repository markdown with mdformat
 [group('md')]
 md-fmt:
-    uvx --python {{ md_python }} --from mdformat=={{ md_version }} --with mdformat-gfm=={{ md_gfm_version }} mdformat --number --wrap {{ md_wrap }} {{ md_excludes }} {{ md_site_exclude }} {{ md_extra_excludes }} .
+    uvx --python {{ md_python }} --from mdformat=={{ md_version }} --with mdformat-gfm=={{ md_gfm_version }} --with mdformat-frontmatter=={{ md_frontmatter_version }} mdformat --number --wrap {{ md_wrap }} {{ md_excludes }} {{ md_site_exclude }} {{ md_extra_excludes }} .
 
 # Check repository markdown formatting
 [group('md')]
 md-fmt-check:
-    uvx --python {{ md_python }} --from mdformat=={{ md_version }} --with mdformat-gfm=={{ md_gfm_version }} mdformat --check --number --wrap {{ md_wrap }} {{ md_excludes }} {{ md_site_exclude }} {{ md_extra_excludes }} .
+    uvx --python {{ md_python }} --from mdformat=={{ md_version }} --with mdformat-gfm=={{ md_gfm_version }} --with mdformat-frontmatter=={{ md_frontmatter_version }} mdformat --check --number --wrap {{ md_wrap }} {{ md_excludes }} {{ md_site_exclude }} {{ md_extra_excludes }} .
