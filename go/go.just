@@ -39,7 +39,7 @@ go_coverage_target := "100"
 # them in one `go-unit-cov-check`, and CI runs them in shards.
 
 go_quick_checks := "go-mod-check"
-go_slow_checks := "go-fmt-check go-vet"
+go_slow_checks := "go-fmt-check go-vet go-dead-check"
 
 # `go-unit-plan` makes one shard for each `go_shard_weight` lines of test code,
 # up to `go_shard_max` shards.
@@ -70,11 +70,14 @@ _go-vet-deps: _go-mod-download
 [private]
 _go-cov-deps: _go-mod-download
 
+[private]
+_go-dead-deps: _go-mod-download
+
 # --- Setup ---
 
 # Install all tool dependencies
 [group('go')]
-go-deps: _go-fmt-deps _go-vet-deps _go-cov-deps
+go-deps: _go-fmt-deps _go-vet-deps _go-cov-deps _go-dead-deps
 
 # Download modules without changing anything
 [group('go')]
@@ -145,6 +148,20 @@ go-mod-bump:
 [group('go')]
 go-vet: _go-vet-deps
     go tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint run --config {{ go_git_root }}/.golangci.yml
+
+# Fail on each function that no main and no test reaches. No linter finds
+# them: unused skips an exported function, as API for other packages.
+# deadcode skips generated files, and exits 0 when it finds some.
+[group('go')]
+go-dead-check: _go-dead-deps
+    #!/usr/bin/env bash
+    set -euo pipefail
+    out=$(go tool golang.org/x/tools/cmd/deadcode -test ./... | grep -v -e /mocks/ -e /node_modules/ || true)
+    if [ -n "$out" ]; then
+        echo "$out"
+        echo "Remove each function above, or call it."
+        exit 1
+    fi
 
 # --- Dev ---
 

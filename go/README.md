@@ -7,7 +7,15 @@ golangci-lint also formats. `go-fmt` and `go-fmt-check` run `golangci-lint fmt`
 with the formatters that the `.golangci.yml` of the repository enables, such as
 gofumpt, golines and goimports. Thus `go-fmt` writes, `go-fmt-check` checks and
 `go-vet` reports the same format, from one version of each tool. The repository
-records only golangci-lint in its `tool (...)` block. golangci-lint skips
+records golangci-lint and deadcode in its `tool (...)` block:
+
+```bash
+go get -tool golang.org/x/tools/cmd/deadcode
+```
+
+`go-dead-check` runs `deadcode -test ./...`, and fails on each function that no
+`main` and no test reaches. No linter of golangci-lint finds such a function:
+`unused` skips an exported one, as API for other packages. golangci-lint skips
 generated files and hidden directories, such as `.worktrees`. To skip other
 paths, add them to `formatters.exclusions.paths` in `.golangci.yml`.
 
@@ -38,6 +46,7 @@ just go-unit-cov-gaps      # Open a heatmap of files under 100%
 just go-fmt                # Reformat with the formatters of .golangci.yml
 just go-fmt-check          # Check formatting
 just go-vet                # Run golangci-lint
+just go-dead-check         # Fail on functions that nothing reaches
 just go-generate           # Run go generate
 just go-run *args          # Compile and run the main package
 just go-mod                # Download, then tidy the root and examples/
@@ -90,15 +99,15 @@ new package goes into a shard, with no change to the workflow.
 
 ## Configuration
 
-| Variable             | Default               | Purpose                                     |
-| -------------------- | --------------------- | ------------------------------------------- |
-| `go_coverage_target` | `100`                 | Minimum total coverage; below this fails    |
-| `go_coverage_dir`    | `.coverage`           | Where the recipes write the profile         |
-| `go_main_package`    | `main.go`             | Entry point for builds                      |
-| `go_quick_checks`    | `go-mod-check`        | The checks that share one CI job            |
-| `go_slow_checks`     | `go-fmt-check go-vet` | The checks that each get a CI job           |
-| `go_shard_weight`    | `20000`               | Lines of test code for each unit test shard |
-| `go_shard_max`       | `10`                  | The most unit test shards                   |
+| Variable             | Default                             | Purpose                                     |
+| -------------------- | ----------------------------------- | ------------------------------------------- |
+| `go_coverage_target` | `100`                               | Minimum total coverage; below this fails    |
+| `go_coverage_dir`    | `.coverage`                         | Where the recipes write the profile         |
+| `go_main_package`    | `main.go`                           | Entry point for builds                      |
+| `go_quick_checks`    | `go-mod-check`                      | The checks that share one CI job            |
+| `go_slow_checks`     | `go-fmt-check go-vet go-dead-check` | The checks that each get a CI job           |
+| `go_shard_weight`    | `20000`                             | Lines of test code for each unit test shard |
+| `go_shard_max`       | `10`                                | The most unit test shards                   |
 
 ### Change a default
 
