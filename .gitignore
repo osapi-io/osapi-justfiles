@@ -1,1 +1,4 @@
 .just/
+
+# Worktrees of this repository, for work on a branch.
+.worktrees/
